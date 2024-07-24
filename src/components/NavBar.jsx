@@ -3,7 +3,7 @@ import Search from "../assets/icons/search.svg"
 
 const NavBar = () => {
     return (
-        <nav className="bg-gray-50 w-full px-12 py-4 flex justify-between items-center shadow-md sticky z-10">
+        <nav className="bg-gray-50 w-full px-12 py-4 flex justify-between items-center shadow-md fixed z-10">
             <img src={Logo} className="h-12"/>
             <div className="flex gap-2">
                 <img src={Search} />
