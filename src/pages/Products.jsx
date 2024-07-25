@@ -8,16 +8,16 @@ const Products = () => {
 
     return (
         <section className="flex flex-row gap-3 h-full">
-            <article className="basis-1/3 p-3 border rounded-lg overflow-y-scroll">
-                <div>
-                    <h1 className="text-lg font-semibold">Agregar un producto</h1>
-                    <AddProduct item={productList[0]} />
-                </div>
-            </article>
-            <article className="producto basis-2/3 p-2 border rounded-lg overflow-y-scroll">
+            <article className="producto basis-2/3 p-6 border rounded-lg overflow-y-scroll bg-white">
                 {productList.map(item => (
-                    <ProductCard key={item.idx + 1000} clase={"w-auto"} url={item.url} idx={item.idx} nombre={item.nombre} descripcion={item.descripcion} precio={item.precio} moneda={item.moneda} />
+                    <ProductCard key={item.id} clase={"w-auto"} url={item.url} id={item.id} nombre={item.nombre} descripcion={item.descripcion} precio={item.precio} moneda={item.moneda} caracteristicas={item.caracteristicas} />
                 ))}
+            </article>
+            <article className="basis-1/3 p-3 border rounded-lg overflow-y-scroll bg-white">
+                <div>
+                    <h1 className="text-xl font-semibold">Agregar un producto</h1>
+                    <AddProduct />
+                </div>
             </article>
         </section>
     )
