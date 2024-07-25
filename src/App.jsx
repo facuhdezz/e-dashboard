@@ -11,7 +11,7 @@ function App() {
       <NavBar />
       <div className="flex flex-row">
         <Aside />
-        <main className="h-[100dvh] w-full pt-[96px] px-4">
+        <main className="h-[100dvh] w-full pt-[96px] pb-4 px-4">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<Products />} />
