@@ -18,8 +18,12 @@ export const ProductsProvider = ({children}) => {
         });
     }, []);
 
+    const addProductToList = (newProduct) => {
+        setProductList(prevList => [...prevList, newProduct]);
+    };
+
     return (
-        <ProductsContext.Provider value={{productList}}>
+        <ProductsContext.Provider value={{productList, addProductToList}}>
             {children}
         </ProductsContext.Provider>
     )

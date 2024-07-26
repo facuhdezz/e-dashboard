@@ -3,10 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import ProductAdded from "./ProductAdded";
 import { doc, getFirestore, setDoc, Timestamp } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
+import { useProducts } from '../context/ProductsContext';
 
 const AddProduct = ({ item = {} }) => {
 
     const section = useRef()
+
+    const { addProductToList } = useProducts()
 
     const handleClick = () => {
         window.dispatchEvent(new Event('scrollToTop'));
@@ -39,12 +42,13 @@ const AddProduct = ({ item = {} }) => {
         nombre: item.nombre || "",
         descripcion: item.descripcion || "",
         url: item.url || "",
+        nombreImg: item.nombreImg || "",
         moneda: item.moneda || "USD",
         precio: item.precio || 0,
         caracteristicas: item.caracteristicas || {},
         categoria: item.categoria || "calefactores",
         subcategoria: item.subcategoria || "",
-        destacado: item.destacado || "false"
+        destacado: item.destacado || ""
     });
 
     const handleUpload = () => {
@@ -65,7 +69,8 @@ const AddProduct = ({ item = {} }) => {
                 setUrl(downloadURL);
                 setProduct((prevProduct) => ({
                     ...prevProduct,
-                    url: downloadURL
+                    url: downloadURL,
+                    nombreImg: file.name
                 }));
             }).catch((err) => {
                 console.log(err);
@@ -167,19 +172,22 @@ const AddProduct = ({ item = {} }) => {
             nombre: "",
             descripcion: "",
             url: "",
+            nombreImg: "",
             moneda: "USD",
             precio: null,
             caracteristicas: {},
             categoria: "calefactores",
             subcategoria: "pellet",
-            destacado: "false"
+            destacado: ""
         });
         setIsAdded(false)
     }
 
     const sendProduct = () => {
+        console.log(product);
         const db = getFirestore();
         setDoc(doc(db, "products", idProduct), {...product, createdAt: Timestamp.now()});
+        addProductToList(product)
         handleClear();
     }
 
@@ -214,10 +222,10 @@ const AddProduct = ({ item = {} }) => {
                 <div>
                     <label className="font-semibold">Subir imagen</label>
                     <input type="file" name="url" onChange={handleChangeImg} ref={fileInputRef} className="w-full h-8 mt-2"></input>
-                    <button onClick={handleUpload} className="text-sm w-full border rounded p-1 bg-gray-100 hover:bg-gray-200 mt-2">Subir</button>
                     {previewUrl && <div>
                             <img src={previewUrl} className="w-[50%] mx-auto" />
-                            <button onClick={handleClearImg} className="text-sm w-full border rounded p-1 bg-red-700 hover:bg-red-800 text-white mt-2">Eliminar imagen</button>     
+                            <button onClick={handleUpload} className="text-sm lg:text-base w-full border rounded p-1 bg-green-600 hover:bg-green-700 text-white mt-2">Subir imagen</button>
+                            <button onClick={handleClearImg} className="text-sm lg:text-base w-full border rounded p-1 bg-red-700 hover:bg-red-800 text-white mt-2">Eliminar imagen</button>     
                         </div>               
                     }
                 </div>
@@ -278,7 +286,7 @@ const AddProduct = ({ item = {} }) => {
                     <label className="font-semibold">¿Producto destacado?</label>
                     {!(!exist || (inputEdit == "destacados")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("destacados")}}>Editar Destacado</p>}
                     {(!exist || (inputEdit == "destacados")) && <select id="destacado" name="destacado" value={selectDest} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
-                        <option value="false">No</option>
+                        <option value="">No</option>
                         <option value="true">Si</option>
                     </select>}
                 </div>
