@@ -1,8 +1,15 @@
-import { useState } from "react";
+import Close from '../assets/icons/close.svg'
+import { useRef, useState } from "react";
 import ProductAdded from "./ProductAdded";
 import { doc, getFirestore, setDoc, Timestamp } from "firebase/firestore";
 
 const AddProduct = ({ item = {} }) => {
+
+    const section = useRef()
+
+    const handleClick = () => {
+        window.dispatchEvent(new Event('scrollToTop'));
+    };
 
     const [selectDest, setSelectDest] = useState(item.destacado || "")
     const [selectCat, setSelectCat] = useState(item.categoria || "calefactores")
@@ -11,6 +18,10 @@ const AddProduct = ({ item = {} }) => {
     const [caracteristica, setCaracteristica] = useState("")
     const [valorCaracteristica, setValorCaracteristica] = useState("")
     const [idProduct, setIdProduct] = useState(item.id || "")
+    const [file, setFile] = useState(null)
+    const [url, setUrl] = useState(item.url || "")
+    const [previewUrl, setPreviewUrl] = useState("")
+    const fileInputRef = useRef(null);
     const [product, setProduct] = useState({
         nombre: item.nombre || "",
         descripcion: item.descripcion || "",
@@ -24,6 +35,35 @@ const AddProduct = ({ item = {} }) => {
     })
 
     const [isAdded, setIsAdded] = useState(false);
+
+    const removeCaract = (key) => {
+        setProduct(prevProduct => {
+            const updateCaract = {...prevProduct.caracteristicas}
+            delete updateCaract[key]
+            return {...prevProduct, caracteristicas: updateCaract}
+        })
+    }
+
+    const handleChangeImg = (e) => {
+        if (e.target.files[0]) {
+            setFile(e.target.files[0]);
+            const reader = new FileReader();
+
+            reader.onloadend = () => {
+                setPreviewUrl(reader.result);
+            };
+
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    };
+
+    const handleClearImg = () => {
+        setFile(null);
+        setPreviewUrl(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    };
 
     const handleChangeValue = (event) => {
         if (event.target.name === "categoria") {
@@ -106,39 +146,53 @@ const AddProduct = ({ item = {} }) => {
     }
 
     return (
-        <section className="h-full overflow-y-scroll">
+        <section ref={section} className="h-full overflow-y-scroll mt-4">
             {isAdded && 
                 <div className="flex flex-col gap-4 items-center">
-                    <ProductAdded nombre={product.nombre} descripcion={product.descripcion} url={product.url} moneda={product.moneda} precio={product.precio} caracteristicas={product.caracteristicas} categoria={product.categoria} subcategoria={product.subcategoria} destacado={product.destacado} />
+                    <ProductAdded nombre={product.nombre} descripcion={product.descripcion} url={product.url || previewUrl} moneda={product.moneda} precio={product.precio} caracteristicas={product.caracteristicas} categoria={product.categoria} subcategoria={product.subcategoria} destacado={product.destacado} />
                     <div className="flex flex-col gap-2">
                         <button onClick={sendProduct} className="bg-green-800 text-white p-2 rounded-lg hover:bg-green-700">Confirmar</button>
                         <button onClick={handleClear} className="bg-red-800 text-white p-2 rounded-lg hover:bg-red-700">Eliminar producto</button>
                     </div>
                 </div>
             } 
-            <form className="flex flex-col gap-2 mt-3" onSubmit={handleSubmit}>
-                <div>
-                    <label>Nombre del producto</label>
-                    <input type="text" name="nombre" value={product.nombre} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder="Eco Start 12"></input>
+            <form className="flex flex-col gap-4 divide-y mt-3" onSubmit={handleSubmit}>
+                <div className="flex flex-col gap-3">
+                    <div>
+                        <label>Nombre del producto</label>
+                        <input type="text" name="nombre" value={product.nombre} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder="Eco Start 12"></input>
+                    </div>
+                    <div>
+                        <label>Descripción del producto</label>
+                        <input type="text" name="descripcion" value={product.descripcion} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder="Calefactor a pellet Eco Start 12 12kw"></input>
+                    </div>
                 </div>
-                <div>
-                    <label>Descripción del producto</label>
-                    <input type="text" name="descripcion" value={product.descripcion} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder="Calefactor a pellet Eco Start 12 12kw"></input>
-                </div>
-                <div>
+                {/* <div>
                     <label>URL de la imagen</label>
                     <input type="text" name="url" value={product.url} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder="https://i.imgur.com/aob6y6d.jpg"></input>
-                </div>
+                </div> */}
                 <div>
-                    <label>Mondeda</label>
-                    <select id="moneda" name="moneda" onChange={handleChange} value={selectMoneda} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
-                        <option value="USD" >USD - Dólares</option>
-                        <option value="$">$UY - Pesos</option>
-                    </select>
+                    <label>Subir imagen</label>
+                    <input type="file" name="url" onChange={handleChangeImg} ref={fileInputRef} className="w-full h-8 mt-2"></input>
+                    <button className="text-sm w-full border rounded p-1 bg-gray-100 hover:bg-gray-200 mt-2">Subir</button>
+                    {previewUrl && <div>
+                            <img src={previewUrl} className="w-[50%] mx-auto" />
+                            <button onClick={handleClearImg} className="text-sm w-full border rounded p-1 bg-red-700 hover:bg-red-800 text-white mt-2">Eliminar imagen</button>     
+                        </div>               
+                    }
                 </div>
-                <div>
-                    <label>Precio</label>
-                    <input type="number" name="precio" value={product.precio} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
+                <div className="flex flex-col gap-3">
+                    <div>
+                        <label>Mondeda</label>
+                        <select id="moneda" name="moneda" onChange={handleChange} value={selectMoneda} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
+                            <option value="USD" >USD - Dólares</option>
+                            <option value="$">$UY - Pesos</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Precio</label>
+                        <input type="number" name="precio" value={product.precio} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
+                    </div>
                 </div>
                 <div>
                     <h1 className="font-semibold">Características</h1>
@@ -153,21 +207,28 @@ const AddProduct = ({ item = {} }) => {
                         </div>
                     </div>                    
                     <button onClick={handleSetCaract} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Característica</button>
+                    <ul>
+                        {product.caracteristicas && Object.entries(product.caracteristicas).map(([key, value]) => (
+                            <li key={key} className="flex flex-row items-center text-sm"><img src={Close} onClick={() => removeCaract(key)} className="w-5 mr-2 hover:cursor-pointer opacity-80" /> {key}: {value}</li>
+                        ))}
+                    </ul>
                 </div>
-                <div>
-                    <label>Categoría</label>
-                    <select id="categoria" name="categoria" value={selectCat} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
-                        <option value="calefactores">Calefactores</option>
-                        <option value="aires acondicionados">Aires Acondicionados</option>
-                    </select>
+                <div className="flex flex-col gap-3">
+                    <div>
+                        <label>Categoría</label>
+                        <select id="categoria" name="categoria" value={selectCat} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
+                            <option value="calefactores">Calefactores</option>
+                            <option value="aires acondicionados">Aires Acondicionados</option>
+                        </select>
+                    </div>
+                    {selectCat == "calefactores" && <div>
+                        <label>Sub Categoría</label>
+                        <select id="subcategoria" name="subcategoria" value={selectSubCat} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
+                            <option value="pellet">Calefactores a pellet</option>
+                            <option value="leña">Calefactores a leña</option>
+                        </select>
+                    </div>}
                 </div>
-                {selectCat == "calefactores" && <div>
-                    <label>Sub Categoría</label>
-                    <select id="subcategoria" name="subcategoria" value={selectSubCat} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
-                        <option value="pellet">Calefactores a pellet</option>
-                        <option value="leña">Calefactores a leña</option>
-                    </select>
-                </div>}
                 <div>
                     <label>¿Producto destacado?</label>
                     <select id="destacado" name="destacado" value={selectDest} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
@@ -179,7 +240,7 @@ const AddProduct = ({ item = {} }) => {
                     <label>ID del producto</label>
                     <input type="text" name="id" value={idProduct} onChange={handleChangeId} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
                 </div>
-                <button type="submit" className="bg-gray-100 border border-gray-300 p-2 rounded text-lg hover:bg-gray-200">Agregar producto</button>
+                <button type="submit" onClick={handleClick} className="bg-gray-100 border border-gray-300 p-2 rounded text-lg hover:bg-gray-200">Agregar producto</button>
             </form>
         </section>
     )

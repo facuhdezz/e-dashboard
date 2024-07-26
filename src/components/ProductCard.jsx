@@ -3,7 +3,7 @@ import Edit from "../assets/icons/edit.svg"
 
 const ProductCard = (item) => {
     return(
-        <article className={`flex flex-col relative bg-gray-50 border shrink-0 gap-2 justify-between rounded ${item.clase}`}>
+        <article className={`flex flex-col relative bg-gray-50 border shrink-0 gap-2 p-3 justify-between rounded ${item.clase}`}>
             <Link to={"edit/" + item.id}><img className="absolute top-2 right-2 w-8 hover:w-9 duration-200" src={Edit} /></Link>
             <div className="flex flex-col items-center gap-2">
                 <div className="w-full aspect-square">
@@ -21,8 +21,7 @@ const ProductCard = (item) => {
                         ))}
                     </ul>
                 </div>
-            </div>            
-            <Link to={"edit/" + item.id} className="text-center"><button className="border rounded bg-white px-2">Ver más</button></Link>
+            </div>
         </article>
     )
 }
