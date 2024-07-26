@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import AddProduct from "../components/AddProduct";
 import ProductCard from "../components/ProductCard";
 import { useProducts } from "../context/ProductsContext";
@@ -6,7 +6,19 @@ import { useProducts } from "../context/ProductsContext";
 const Products = () => {
 
     const { productList } = useProducts()
-    const addRef = useRef(null);
+    const [products, setProducts] = useState(productList || []);
+
+    useEffect(() => {
+        if (productList) {
+            setProducts(productList);
+        }
+    }, [productList]);
+
+    const handleRemoveProduct = (id) => {
+        setProducts((prevProducts) => prevProducts.filter((product) => product.id !== id));
+    };
+
+    const addRef = useRef()
 
     useEffect(() => {
         const handleScrollToTop = () => {
@@ -26,8 +38,8 @@ const Products = () => {
     return (
         <section className="flex flex-row gap-3 h-full">
             <article className="producto basis-2/3 p-6 border rounded-lg overflow-y-scroll bg-white">
-                {productList.map(item => (
-                    <ProductCard key={item.id} clase={"w-auto"} url={item.url} id={item.id} nombre={item.nombre} descripcion={item.descripcion} precio={item.precio} moneda={item.moneda} caracteristicas={item.caracteristicas} />
+                {products.map(item => (
+                    <ProductCard onRemove={handleRemoveProduct} key={item.id} clase={"w-auto"} item={item} />
                 ))}
             </article>
             <article ref={addRef} className="basis-1/3 p-3 border rounded-lg overflow-y-scroll bg-white">

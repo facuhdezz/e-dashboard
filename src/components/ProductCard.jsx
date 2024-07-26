@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import Edit from "../assets/icons/edit.svg"
+import RemoveProduct from "./RemoveProduct";
 
-const ProductCard = (item) => {
+const ProductCard = ({item, onRemove}) => {
     return(
         <article className={`flex flex-col relative bg-gray-50 border shrink-0 gap-2 p-3 justify-between rounded ${item.clase}`}>
-            <Link to={"edit/" + item.id}><img className="absolute top-2 right-2 w-8 hover:w-9 duration-200" src={Edit} /></Link>
+            <Link to={"edit/" + item.id}><img className="absolute top-2 left-2 w-8 hover:w-9 duration-200" src={Edit} /></Link>
+            <RemoveProduct item={item} onRemove={onRemove} />
             <div className="flex flex-col items-center gap-2">
                 <div className="w-full aspect-square">
                     <img className="w-auto h-auto" src={item.url} alt={item.descripcion}/>
