@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useProducts } from "../context/ProductsContext";
 import { useEffect, useState } from "react";
 import AddProduct from "../components/AddProduct";
@@ -16,11 +16,12 @@ const EditTemplate = () => {
     }, [id])
 
     return (
-        <section className="flex flex-row gap-3 h-full">
-            <article className="basis-1/2 p-6 border rounded-lg overflow-y-scroll bg-white flex flex-col">
+        <section className="flex flex-col lg:flex-row gap-3 h-full">
+            <Link to={"/"} className="font-xl"><h1>Volver a productos</h1></Link>
+            <article className="sm:basis-1/2 p-6 border rounded-lg overflow-y-scroll bg-white flex flex-col">
                 {productUnique && <ProductDetail key={productUnique.id + 1} clase={"w-auto"} item={productUnique} />}
             </article>
-            <article className="basis-1/2 p-3 border rounded-lg overflow-y-scroll bg-white">
+            <article className="sm:basis-1/2 p-3 border rounded-lg overflow-y-scroll bg-white">
                 <div>
                     <h1 className="text-xl font-semibold">Editar un producto</h1>
                     {productUnique && <AddProduct item={productUnique} />}

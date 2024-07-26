@@ -12,11 +12,12 @@ function App() {
       <NavBar />
       <div className="flex flex-row">
         <Aside />
-        <main className="h-[100dvh] w-full pt-[96px] pb-4 px-4 bg-gray-100">
+        <main className="sm:h-[100dvh] w-full pt-[96px] pb-4 px-4 bg-gray-100">
           <Routes>
-            <Route path="/" element={<Home />} />
+            {/* <Route path="/" element={<Home />} /> */}
+            <Route path="/" element={<Products />} />
             <Route path="/products" element={<Products />} />
-            <Route path="/products/edit/:id" element={<EditTemplate />} />
+            <Route path="/edit/:id" element={<EditTemplate />} />
           </Routes>
         </main>
       </div>

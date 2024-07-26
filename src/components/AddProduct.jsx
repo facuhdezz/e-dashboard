@@ -17,7 +17,7 @@ const AddProduct = ({ item = {} }) => {
     const [inputEdit, setInputEdit] = useState("")
 
     useEffect(() => {
-        if (item) {
+        if (Object.keys(item).length > 0) {
             setExist(true)
         } else {
             setExist(false)

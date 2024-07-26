@@ -36,13 +36,13 @@ const Products = () => {
       }, []);
 
     return (
-        <section className="flex flex-row gap-3 h-full">
-            <article className="producto basis-2/3 p-6 border rounded-lg overflow-y-scroll bg-white">
+        <section className="flex flex-col-reverse sm:flex-row gap-3 h-full">
+            <article className="producto sm:basis-1/2 xl:basis-2/3 p-6 border rounded-lg sm:overflow-y-scroll bg-white">
                 {products.map(item => (
                     <ProductCard onRemove={handleRemoveProduct} key={item.id} clase={"w-auto"} item={item} />
                 ))}
             </article>
-            <article ref={addRef} className="basis-1/3 p-3 border rounded-lg overflow-y-scroll bg-white">
+            <article ref={addRef} className="sm:basis-1/2 xl:basis-1/3 p-3 border rounded-lg sm:overflow-y-scroll bg-white">
                 <div>
                     <h1 className="text-xl font-semibold">Agregar un producto</h1>
                     <AddProduct />
