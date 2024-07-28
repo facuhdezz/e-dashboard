@@ -11,10 +11,6 @@ const AddProduct = ({ item = {} }) => {
 
     const { addProductToList } = useProducts()
 
-    const handleClick = () => {
-        window.dispatchEvent(new Event('scrollToTop'));
-    };
-
     const [isAdded, setIsAdded] = useState(false);
     const [exist, setExist] = useState(null)
     const [inputEdit, setInputEdit] = useState("")
@@ -50,6 +46,12 @@ const AddProduct = ({ item = {} }) => {
         subcategoria: item.subcategoria || "",
         destacado: item.destacado || ""
     });
+
+    const handleClick = () => {
+        setIsAdded(true);
+        window.dispatchEvent(new Event('scrollToTop'));
+        console.log(product);
+    };
 
     const handleUpload = () => {
         const storage = getStorage()
@@ -157,11 +159,6 @@ const AddProduct = ({ item = {} }) => {
         }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        setIsAdded(true);
-    }
-
     const handleClear = () => {
         setSelectDest("");
         setSelectCat("calefactores");
@@ -184,7 +181,6 @@ const AddProduct = ({ item = {} }) => {
     }
 
     const sendProduct = () => {
-        console.log(product);
         const db = getFirestore();
         setDoc(doc(db, "products", idProduct), {...product, createdAt: Timestamp.now()});
         addProductToList(product)
@@ -202,7 +198,7 @@ const AddProduct = ({ item = {} }) => {
                     </div>
                 </div>
             } 
-            <form className="flex flex-col gap-4 divide-y mt-3" onSubmit={handleSubmit}>
+            <form className="flex flex-col gap-4 divide-y mt-3" onSubmit={(e) => {e.preventDefault()}}>
                 <div className="flex flex-col gap-3">
                     <div>
                         <label className="font-semibold">Nombre del producto</label>
