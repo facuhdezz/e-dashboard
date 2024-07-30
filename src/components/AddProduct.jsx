@@ -27,6 +27,8 @@ const AddProduct = ({ item = {} }) => {
     const [selectCat, setSelectCat] = useState(item.categoria || "calefactores")
     const [selectSubCat, setSelectSubCat] = useState(item.subcategoria || "pellet")
     const [selectMoneda, setSelectMoneda] = useState("")
+    const [opcional, setOpcional] = useState("")
+    const [valorOpcional, setValorOpcional] = useState("")
     const [caracteristica, setCaracteristica] = useState("")
     const [valorCaracteristica, setValorCaracteristica] = useState("")
     const [idProduct, setIdProduct] = useState(item.id || "")
@@ -41,10 +43,12 @@ const AddProduct = ({ item = {} }) => {
         nombreImg: item.nombreImg || "",
         moneda: item.moneda || "USD",
         precio: item.precio || 0,
+        opcionales: item.opcional || {},
         caracteristicas: item.caracteristicas || {},
         categoria: item.categoria || "calefactores",
         subcategoria: item.subcategoria || "",
-        destacado: item.destacado || ""
+        destacado: item.destacado || "",
+        otros: item.otros || ""
     });
 
     const handleClick = () => {
@@ -86,6 +90,14 @@ const AddProduct = ({ item = {} }) => {
             const updateCaract = {...prevProduct.caracteristicas}
             delete updateCaract[key]
             return {...prevProduct, caracteristicas: updateCaract}
+        })
+    }
+
+    const removeOpcional = (key) => {
+        setProduct(prevProduct => {
+            const updateOpcional = {...prevProduct.opcionales}
+            delete updateOpcional[key]
+            return {...prevProduct, opcionales: updateOpcional}
         })
     }
 
@@ -138,6 +150,14 @@ const AddProduct = ({ item = {} }) => {
         }
     }
 
+    const handleChangeOpcional = (event) => {
+        if (event.target.name === "nombreOp") {
+            setOpcional(event.target.value)
+        } else if (event.target.name === "valorOp") {
+            setValorOpcional(event.target.value)
+        }
+    }
+
     const handleSetCaract = (e) => {
         e.preventDefault()
         setProduct((prevProduct) => ({
@@ -145,6 +165,19 @@ const AddProduct = ({ item = {} }) => {
             caracteristicas: {
                 ...prevProduct.caracteristicas,
                 [caracteristica]: valorCaracteristica
+            }
+        }))
+        setCaracteristica("")
+        setValorCaracteristica("")
+    }
+
+    const handleSetOpcional = (e) => {
+        e.preventDefault()
+        setProduct((prevProduct) => ({
+            ...prevProduct, 
+            opcionales: {
+                ...prevProduct.opcionales,
+                [opcional]: valorOpcional
             }
         }))
         setCaracteristica("")
@@ -173,6 +206,7 @@ const AddProduct = ({ item = {} }) => {
             moneda: "USD",
             precio: null,
             caracteristicas: {},
+            opcionales: {},
             categoria: "calefactores",
             subcategoria: "pellet",
             destacado: ""
@@ -239,6 +273,26 @@ const AddProduct = ({ item = {} }) => {
                         {(!exist || (inputEdit == "precio")) && <input type="number" name="precio" value={product.precio} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>}
                         {!(!exist || (inputEdit == "precio")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("precio")}}>Editar Precio</p>}
                     </div>
+                    <div>
+                    <h1 className="font-semibold">Opcionales</h1>
+                    {!(!exist || (inputEdit == "opcionales")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("opcionales")}}>Editar Opcionales</p>}
+                    {(!exist || (inputEdit == "opcionales")) && <div><div className="flex gap-1">
+                        <div className="basis-1/2">
+                            <label className="text-sm">Nombre</label>
+                            <input type="text" name="nombreOp" value={opcional} onChange={handleChangeOpcional} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
+                        </div>
+                        <div className="basis-1/2">
+                            <label className="text-sm">Valor {product.moneda}</label>
+                            <input type="text" name="valorOp" value={valorOpcional} onChange={handleChangeOpcional} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
+                        </div>
+                    </div>                    
+                    <button onClick={handleSetOpcional} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Opcional</button>
+                    <ul>
+                        {product.opcionales && Object.entries(product.opcionales).map(([key, value]) => (
+                            <li key={key} className="flex flex-row items-center text-sm"><img src={Close} onClick={() => removeOpcional(key)} className="w-5 mr-2 hover:cursor-pointer opacity-80" /> {key}: {value}</li>
+                        ))}
+                    </ul></div>}
+                </div>
                 </div>
                 <div>
                     <h1 className="font-semibold">Características</h1>
@@ -267,6 +321,7 @@ const AddProduct = ({ item = {} }) => {
                         {(!exist || (inputEdit == "categoria")) && <select id="categoria" name="categoria" value={selectCat} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
                             <option value="calefactores">Calefactores</option>
                             <option value="aires acondicionados">Aires Acondicionados</option>
+                            <option value="otros productos">Otros Productos</option>
                         </select>}
                     </div>
                     {selectCat == "calefactores" && <div>
@@ -285,6 +340,11 @@ const AddProduct = ({ item = {} }) => {
                         <option value="">No</option>
                         <option value="true">Si</option>
                     </select>}
+                </div>
+                <div>
+                    <label className="font-semibold">Otros</label>
+                    {(!exist || (inputEdit == "otros")) && <input type="text" name="otros" value={product.otros} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder=""></input>}
+                    {!(!exist || (inputEdit == "otros")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("otros")}}>Otros</p>}
                 </div>
                 {!exist && <div>
                     <label className="font-semibold">ID del producto</label>
