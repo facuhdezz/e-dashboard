@@ -208,7 +208,7 @@ const AddProduct = ({ item = {} }) => {
             caracteristicas: {},
             opcionales: {},
             categoria: "calefactores",
-            subcategoria: "pellet",
+            subcategoria: "",
             destacado: ""
         });
         setIsAdded(false)
