@@ -1,10 +1,13 @@
+import { AuthProvider } from "./AuthContext";
 import { ProductsProvider } from "./ProductsContext"
 
 const AppProvider = ({children}) => {
     return (
-        <ProductsProvider>
-            {children}
-        </ProductsProvider>
+        <AuthProvider>
+            <ProductsProvider>
+                {children}
+            </ProductsProvider>
+        </AuthProvider>
     )
 }
 
