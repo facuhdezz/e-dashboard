@@ -1,55 +1,45 @@
 import Close from '../assets/icons/close.svg'
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import ProductAdded from "./ProductAdded";
 import { doc, getFirestore, setDoc, Timestamp } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import { useProducts } from '../context/ProductsContext';
 import InputComp from './formComponents/InputComp';
 
-const AddProduct = ({ item = {} }) => {
+const AddProduct = () => {
 
     const section = useRef()
 
     const { addProductToList } = useProducts()
 
     const [isAdded, setIsAdded] = useState(false);
-    const [exist, setExist] = useState(null)
-    const [inputEdit, setInputEdit] = useState("")
 
-    useEffect(() => {
-        if (Object.keys(item).length > 0) {
-            setExist(true)
-        } else {
-            setExist(false)
-        }
-    }, [])
-
-    const [selectDest, setSelectDest] = useState(item.destacado || "")
-    const [selectCat, setSelectCat] = useState(item.categoria || "calefactores")
-    const [selectSubCat, setSelectSubCat] = useState(item.subcategoria || "pellet")
+    const [selectDest, setSelectDest] = useState("")
+    const [selectCat, setSelectCat] = useState("")
+    const [selectSubCat, setSelectSubCat] = useState("")
     const [selectMoneda, setSelectMoneda] = useState("")
     const [opcional, setOpcional] = useState("")
     const [valorOpcional, setValorOpcional] = useState("")
     const [caracteristica, setCaracteristica] = useState("")
     const [valorCaracteristica, setValorCaracteristica] = useState("")
-    const [idProduct, setIdProduct] = useState(item.id || "")
+    const [idProduct, setIdProduct] = useState("")
     const [file, setFile] = useState(null)
-    const [url, setUrl] = useState(item.url || "")
+    const [url, setUrl] = useState("")
     const [previewUrl, setPreviewUrl] = useState("")
     const fileInputRef = useRef(null);
     const [product, setProduct] = useState({
-        nombre: item.nombre || "",
-        descripcion: item.descripcion || "",
-        url: item.url || "",
-        nombreImg: item.nombreImg || "",
-        moneda: item.moneda || "USD",
-        precio: item.precio || 0,
-        opcionales: item.opcional || {},
-        caracteristicas: item.caracteristicas || {},
-        categoria: item.categoria || "calefactores",
-        subcategoria: item.subcategoria || "",
-        destacado: item.destacado || "",
-        otros: item.otros || ""
+        nombre: "",
+        descripcion: "",
+        url: "",
+        nombreImg: "",
+        moneda: "USD",
+        precio: 0,
+        opcionales: {},
+        caracteristicas: {},
+        categoria: "calefactores",
+        subcategoria: "",
+        destacado: "",
+        otros: ""
     });
 
     const handleClick = () => {
@@ -235,14 +225,6 @@ const AddProduct = ({ item = {} }) => {
             }
             <form className="flex flex-col gap-4 divide-y mt-3" onSubmit={(e) => { e.preventDefault() }}>
                 <div className="flex flex-col gap-3">
-                    {/* <div>
-                        <label className="font-semibold">Nombre del producto</label>
-                        <input type="text" name="nombre" value={product.nombre} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder="Eco Start 12"></input>
-                    </div>
-                    <div>
-                        <label className="font-semibold">Descripción del producto</label>
-                        <input type="text" name="descripcion" value={product.descripcion} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder="Calefactor a pellet Eco Start 12 12kw"></input>
-                    </div> */}
                     <InputComp labelClass="font-semibold" label="Nombre del producto" type="text" name="nombre" value={product.nombre} onChange={handleChange} placeholder="Eco Start 12" />
                     <InputComp labelClass="font-semibold" label="Descripción del producto" type="text" name="descripcion" value={product.descripcion} onChange={handleChange} placeholder="Calefactor a pellet Eco Start 12 12kw" />
                 </div>
@@ -264,25 +246,13 @@ const AddProduct = ({ item = {} }) => {
                             <option value="$">$UY - Pesos</option>
                         </select>
                     </div>
-                    {/* <div>
-                        <label className="font-semibold">Precio</label>
-                        <input type="number" name="precio" value={product.precio} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
-                    </div> */}
                     <InputComp labelClass="font-semibold" label="Precio" type="text" name="precio" value={product.precio} onChange={handleChange} placeholder="" />
                     <div>
                         <h1 className="font-semibold">Opcionales</h1>
                         <div>
                             <div className="flex gap-1">
-                                {/* <div className="basis-1/2">
-                                    <label className="text-sm">Nombre</label>
-                                    <input type="text" name="nombreOp" value={opcional} onChange={handleChangeOpcional} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
-                                </div>
-                                <div className="basis-1/2">
-                                    <label className="text-sm">Valor {product.moneda}</label>
-                                    <input type="text" name="valorOp" value={valorOpcional} onChange={handleChangeOpcional} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
-                                </div> */}
                                 <InputComp divClass="basis-1/2" labelClass="text-sm" label="Nombre" type="text" name="nombreOp" value={opcional} onChange={handleChangeOpcional} />
-                                <InputComp divClass="basis-1/2" labelClass="text-sm" label="Descripción del producto" type="text" name="descripcion" value={product.descripcion} onChange={handleChange} placeholder="Calefactor a pellet Eco Start 12 12kw" />
+                                <InputComp divClass="basis-1/2" labelClass="text-sm" label={`Valor ${product.moneda}`} type="text" name="valorOp" value={valorOpcional} onChange={handleChangeOpcional} />
                             </div>
                             <button onClick={handleSetOpcional} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Opcional</button>
                             <ul>
@@ -297,14 +267,8 @@ const AddProduct = ({ item = {} }) => {
                     <h1 className="font-semibold">Características</h1>
                     <div>
                         <div className="flex gap-1">
-                            <div className="basis-1/2">
-                                <label className="text-sm">Nombre</label>
-                                <input type="text" name="nombreCar" value={caracteristica} onChange={handleChangeCaract} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
-                            </div>
-                            <div className="basis-1/2">
-                                <label className="text-sm">Valor</label>
-                                <input type="text" name="valorCar" value={valorCaracteristica} onChange={handleChangeCaract} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
-                            </div>
+                            <InputComp divClass="basis-1/2" labelClass="text-sm" label="Nombre" type="text" name="nombreCar" value={caracteristica} onChange={handleChangeCaract} />
+                            <InputComp divClass="basis-1/2" labelClass="text-sm" label="Valor" type="text" name="valorCar" value={valorCaracteristica} onChange={handleChangeCaract} />
                         </div>
                         <button onClick={handleSetCaract} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Característica</button>
                         <ul>
@@ -338,14 +302,8 @@ const AddProduct = ({ item = {} }) => {
                         <option value="true">Si</option>
                     </select>
                 </div>
-                <div>
-                    <label className="font-semibold">Otros</label>
-                    <input type="text" name="otros" value={product.otros} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder=""></input>
-                </div>
-                <div>
-                    <label className="font-semibold">ID del producto</label>
-                    <input type="text" name="id" value={idProduct} onChange={handleChangeId} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
-                </div>
+                <InputComp labelClass="font-semibold" label="Otros" type="text" name="otros" value={product.otros} onChange={handleChange} />
+                <InputComp labelClass="font-semibold" label="ID del producto" type="text" name="id" value={idProduct} onChange={handleChangeId} />
                 <button type="submit" onClick={handleClick} className="bg-gray-100 border border-gray-300 p-2 rounded text-lg hover:bg-gray-200">Agregar producto</button>
             </form>
         </section>
