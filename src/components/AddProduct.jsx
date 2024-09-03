@@ -4,6 +4,7 @@ import ProductAdded from "./ProductAdded";
 import { doc, getFirestore, setDoc, Timestamp } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import { useProducts } from '../context/ProductsContext';
+import InputComp from './formComponents/InputComp';
 
 const AddProduct = ({ item = {} }) => {
 
@@ -57,47 +58,47 @@ const AddProduct = ({ item = {} }) => {
         console.log(product);
     };
 
-    const handleUpload = () => {
-        const storage = getStorage()
-        if (!file) return;
-        const storageRef = ref(storage, `productImg/${file.name}`);
-        const uploadTask = uploadBytesResumable(storageRef, file);
-    
-        uploadTask.on(
-          'state_changed',
-          null,
-          (error) => {
-            console.error(error);
-          },
-          () => {
-            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                console.log(downloadURL);
-                setUrl(downloadURL);
-                setProduct((prevProduct) => ({
-                    ...prevProduct,
-                    url: downloadURL,
-                    nombreImg: file.name
-                }));
-            }).catch((err) => {
-                console.log(err);
-            })
-          }
-        );
-      };
+    // const handleUpload = () => {
+    //     const storage = getStorage()
+    //     if (!file) return;
+    //     const storageRef = ref(storage, `productImg/${file.name}`);
+    //     const uploadTask = uploadBytesResumable(storageRef, file);
+
+    //     uploadTask.on(
+    //       'state_changed',
+    //       null,
+    //       (error) => {
+    //         console.error(error);
+    //       },
+    //       () => {
+    //         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+    //             console.log(downloadURL);
+    //             setUrl(downloadURL);
+    //             setProduct((prevProduct) => ({
+    //                 ...prevProduct,
+    //                 url: downloadURL,
+    //                 nombreImg: file.name
+    //             }));
+    //         }).catch((err) => {
+    //             console.log(err);
+    //         })
+    //       }
+    //     );
+    //   };
 
     const removeCaract = (key) => {
         setProduct(prevProduct => {
-            const updateCaract = {...prevProduct.caracteristicas}
+            const updateCaract = { ...prevProduct.caracteristicas }
             delete updateCaract[key]
-            return {...prevProduct, caracteristicas: updateCaract}
+            return { ...prevProduct, caracteristicas: updateCaract }
         })
     }
 
     const removeOpcional = (key) => {
         setProduct(prevProduct => {
-            const updateOpcional = {...prevProduct.opcionales}
+            const updateOpcional = { ...prevProduct.opcionales }
             delete updateOpcional[key]
-            return {...prevProduct, opcionales: updateOpcional}
+            return { ...prevProduct, opcionales: updateOpcional }
         })
     }
 
@@ -126,7 +127,7 @@ const AddProduct = ({ item = {} }) => {
         if (event.target.name === "categoria") {
             setSelectCat(event.target.value)
         } else if (event.target.name === "subcategoria") {
-            setSelectSubCat(event.target.value) 
+            setSelectSubCat(event.target.value)
         } else if (event.target.name === "destacado") {
             setSelectDest(event.target.value)
         } else if (event.target.name === "moneda") {
@@ -161,7 +162,7 @@ const AddProduct = ({ item = {} }) => {
     const handleSetCaract = (e) => {
         e.preventDefault()
         setProduct((prevProduct) => ({
-            ...prevProduct, 
+            ...prevProduct,
             caracteristicas: {
                 ...prevProduct.caracteristicas,
                 [caracteristica]: valorCaracteristica
@@ -174,7 +175,7 @@ const AddProduct = ({ item = {} }) => {
     const handleSetOpcional = (e) => {
         e.preventDefault()
         setProduct((prevProduct) => ({
-            ...prevProduct, 
+            ...prevProduct,
             opcionales: {
                 ...prevProduct.opcionales,
                 [opcional]: valorOpcional
@@ -215,15 +216,15 @@ const AddProduct = ({ item = {} }) => {
     }
 
     const sendProduct = () => {
-        const db = getFirestore();
-        setDoc(doc(db, "products", idProduct), {...product, createdAt: Timestamp.now()});
+        // const db = getFirestore();
+        // setDoc(doc(db, "products", idProduct), {...product, createdAt: Timestamp.now()});
         addProductToList(product)
         handleClear();
     }
 
     return (
         <section ref={section} className="h-full overflow-y-scroll mt-4">
-            {isAdded && 
+            {isAdded &&
                 <div className="flex flex-col gap-4 items-center">
                     <ProductAdded nombre={product.nombre} descripcion={product.descripcion} url={product.url || previewUrl} moneda={product.moneda} precio={product.precio} caracteristicas={product.caracteristicas} categoria={product.categoria} subcategoria={product.subcategoria} destacado={product.destacado} />
                     <div className="flex flex-col gap-2">
@@ -231,125 +232,120 @@ const AddProduct = ({ item = {} }) => {
                         <button onClick={handleClear} className="bg-red-800 text-white p-2 rounded-lg hover:bg-red-700">Eliminar producto</button>
                     </div>
                 </div>
-            } 
-            <form className="flex flex-col gap-4 divide-y mt-3" onSubmit={(e) => {e.preventDefault()}}>
+            }
+            <form className="flex flex-col gap-4 divide-y mt-3" onSubmit={(e) => { e.preventDefault() }}>
                 <div className="flex flex-col gap-3">
-                    <div>
+                    {/* <div>
                         <label className="font-semibold">Nombre del producto</label>
-                        {(!exist || (inputEdit == "nombre")) && <input type="text" name="nombre" value={product.nombre} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder="Eco Start 12"></input>}
-                        {!(!exist || (inputEdit == "nombre")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("nombre")}}>Editar Nombre</p>}
+                        <input type="text" name="nombre" value={product.nombre} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder="Eco Start 12"></input>
                     </div>
                     <div>
                         <label className="font-semibold">Descripción del producto</label>
-                        {(!exist || (inputEdit == "descripcion")) && <input type="text" name="descripcion" value={product.descripcion} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder="Calefactor a pellet Eco Start 12 12kw"></input>}
-                        {!(!exist || (inputEdit == "descripcion")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("descripcion")}}>Editar Descripcion</p>}
-                    </div>
+                        <input type="text" name="descripcion" value={product.descripcion} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder="Calefactor a pellet Eco Start 12 12kw"></input>
+                    </div> */}
+                    <InputComp labelClass="font-semibold" label="Nombre del producto" type="text" name="nombre" value={product.nombre} onChange={handleChange} placeholder="Eco Start 12" />
+                    <InputComp labelClass="font-semibold" label="Descripción del producto" type="text" name="descripcion" value={product.descripcion} onChange={handleChange} placeholder="Calefactor a pellet Eco Start 12 12kw" />
                 </div>
-                {/* <div>
-                    <label>URL de la imagen</label>
-                    <input type="text" name="url" value={product.url} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder="https://i.imgur.com/aob6y6d.jpg"></input>
-                </div> */}
                 <div>
                     <label className="font-semibold">Subir imagen</label>
                     <input type="file" name="url" onChange={handleChangeImg} ref={fileInputRef} className="w-full h-8 mt-2"></input>
                     {previewUrl && <div>
-                            <img src={previewUrl} className="w-[50%] mx-auto" />
-                            <button onClick={handleUpload} className="text-sm lg:text-base w-full border rounded p-1 bg-green-600 hover:bg-green-700 text-white mt-2">Subir imagen</button>
-                            <button onClick={handleClearImg} className="text-sm lg:text-base w-full border rounded p-1 bg-red-700 hover:bg-red-800 text-white mt-2">Eliminar imagen</button>     
-                        </div>               
+                        <img src={previewUrl} className="w-[50%] mx-auto" />
+                        {/* <button onClick={handleUpload} className="text-sm lg:text-base w-full border rounded p-1 bg-green-600 hover:bg-green-700 text-white mt-2">Subir imagen</button> */}
+                        <button onClick={handleClearImg} className="text-sm lg:text-base w-full border rounded p-1 bg-red-700 hover:bg-red-800 text-white mt-2">Eliminar imagen</button>
+                    </div>
                     }
                 </div>
                 <div className="flex flex-col gap-3">
                     <div>
                         <label className="font-semibold">Mondeda</label>
-                        {(!exist || (inputEdit == "moneda")) && <select id="moneda" name="moneda" onChange={handleChange} value={selectMoneda} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
+                        <select id="moneda" name="moneda" onChange={handleChange} value={selectMoneda} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
                             <option value="USD" >USD - Dólares</option>
                             <option value="$">$UY - Pesos</option>
-                        </select>}
-                        {!(!exist || (inputEdit == "moneda")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("moneda")}}>Editar Moneda</p>}
+                        </select>
                     </div>
-                    <div>
+                    {/* <div>
                         <label className="font-semibold">Precio</label>
-                        {(!exist || (inputEdit == "precio")) && <input type="number" name="precio" value={product.precio} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>}
-                        {!(!exist || (inputEdit == "precio")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("precio")}}>Editar Precio</p>}
-                    </div>
+                        <input type="number" name="precio" value={product.precio} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
+                    </div> */}
+                    <InputComp labelClass="font-semibold" label="Precio" type="text" name="precio" value={product.precio} onChange={handleChange} placeholder="" />
                     <div>
-                    <h1 className="font-semibold">Opcionales</h1>
-                    {!(!exist || (inputEdit == "opcionales")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("opcionales")}}>Editar Opcionales</p>}
-                    {(!exist || (inputEdit == "opcionales")) && <div><div className="flex gap-1">
-                        <div className="basis-1/2">
-                            <label className="text-sm">Nombre</label>
-                            <input type="text" name="nombreOp" value={opcional} onChange={handleChangeOpcional} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
+                        <h1 className="font-semibold">Opcionales</h1>
+                        <div>
+                            <div className="flex gap-1">
+                                {/* <div className="basis-1/2">
+                                    <label className="text-sm">Nombre</label>
+                                    <input type="text" name="nombreOp" value={opcional} onChange={handleChangeOpcional} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
+                                </div>
+                                <div className="basis-1/2">
+                                    <label className="text-sm">Valor {product.moneda}</label>
+                                    <input type="text" name="valorOp" value={valorOpcional} onChange={handleChangeOpcional} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
+                                </div> */}
+                                <InputComp divClass="basis-1/2" labelClass="text-sm" label="Nombre" type="text" name="nombreOp" value={opcional} onChange={handleChangeOpcional} />
+                                <InputComp divClass="basis-1/2" labelClass="text-sm" label="Descripción del producto" type="text" name="descripcion" value={product.descripcion} onChange={handleChange} placeholder="Calefactor a pellet Eco Start 12 12kw" />
+                            </div>
+                            <button onClick={handleSetOpcional} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Opcional</button>
+                            <ul>
+                                {product.opcionales && Object.entries(product.opcionales).map(([key, value]) => (
+                                    <li key={key} className="flex flex-row items-center text-sm"><img src={Close} onClick={() => removeOpcional(key)} className="w-5 mr-2 hover:cursor-pointer opacity-80" /> {key}: {value}</li>
+                                ))}
+                            </ul>
                         </div>
-                        <div className="basis-1/2">
-                            <label className="text-sm">Valor {product.moneda}</label>
-                            <input type="text" name="valorOp" value={valorOpcional} onChange={handleChangeOpcional} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
-                        </div>
-                    </div>                    
-                    <button onClick={handleSetOpcional} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Opcional</button>
-                    <ul>
-                        {product.opcionales && Object.entries(product.opcionales).map(([key, value]) => (
-                            <li key={key} className="flex flex-row items-center text-sm"><img src={Close} onClick={() => removeOpcional(key)} className="w-5 mr-2 hover:cursor-pointer opacity-80" /> {key}: {value}</li>
-                        ))}
-                    </ul></div>}
-                </div>
+                    </div>
                 </div>
                 <div>
                     <h1 className="font-semibold">Características</h1>
-                    {!(!exist || (inputEdit == "caracteristicas")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("caracteristicas")}}>Editar Caracteristicas</p>}
-                    {(!exist || (inputEdit == "caracteristicas")) && <div><div className="flex gap-1">
-                        <div className="basis-1/2">
-                            <label className="text-sm">Nombre</label>
-                            <input type="text" name="nombreCar" value={caracteristica} onChange={handleChangeCaract} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
+                    <div>
+                        <div className="flex gap-1">
+                            <div className="basis-1/2">
+                                <label className="text-sm">Nombre</label>
+                                <input type="text" name="nombreCar" value={caracteristica} onChange={handleChangeCaract} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
+                            </div>
+                            <div className="basis-1/2">
+                                <label className="text-sm">Valor</label>
+                                <input type="text" name="valorCar" value={valorCaracteristica} onChange={handleChangeCaract} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
+                            </div>
                         </div>
-                        <div className="basis-1/2">
-                            <label className="text-sm">Valor</label>
-                            <input type="text" name="valorCar" value={valorCaracteristica} onChange={handleChangeCaract} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
-                        </div>
-                    </div>                    
-                    <button onClick={handleSetCaract} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Característica</button>
-                    <ul>
-                        {product.caracteristicas && Object.entries(product.caracteristicas).map(([key, value]) => (
-                            <li key={key} className="flex flex-row items-center text-sm"><img src={Close} onClick={() => removeCaract(key)} className="w-5 mr-2 hover:cursor-pointer opacity-80" /> {key}: {value}</li>
-                        ))}
-                    </ul></div>}
+                        <button onClick={handleSetCaract} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Característica</button>
+                        <ul>
+                            {product.caracteristicas && Object.entries(product.caracteristicas).map(([key, value]) => (
+                                <li key={key} className="flex flex-row items-center text-sm"><img src={Close} onClick={() => removeCaract(key)} className="w-5 mr-2 hover:cursor-pointer opacity-80" /> {key}: {value}</li>
+                            ))}
+                        </ul>
+                    </div>
                 </div>
                 <div className="flex flex-col gap-3">
                     <div>
                         <label className="font-semibold">Categoría</label>
-                        {!(!exist || (inputEdit == "categoria")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("categoria")}}>Editar Categoría</p>}
-                        {(!exist || (inputEdit == "categoria")) && <select id="categoria" name="categoria" value={selectCat} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
+                        <select id="categoria" name="categoria" value={selectCat} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
                             <option value="calefactores">Calefactores</option>
                             <option value="aires acondicionados">Aires Acondicionados</option>
                             <option value="otros productos">Otros Productos</option>
-                        </select>}
+                        </select>
                     </div>
                     {selectCat == "calefactores" && <div>
                         <label className="font-semibold">Sub Categoría</label>
-                        {!(!exist || (inputEdit == "subcategoria")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("subcategoria")}}>Editar Subcategoría</p>}
-                        {(!exist || (inputEdit == "subcategoria")) && <select id="subcategoria" name="subcategoria" value={selectSubCat} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
+                        <select id="subcategoria" name="subcategoria" value={selectSubCat} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
                             <option value="pellet">Calefactores a pellet</option>
                             <option value="leña">Calefactores a leña</option>
-                        </select>}
+                        </select>
                     </div>}
                 </div>
                 <div>
                     <label className="font-semibold">¿Producto destacado?</label>
-                    {!(!exist || (inputEdit == "destacados")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("destacados")}}>Editar Destacado</p>}
-                    {(!exist || (inputEdit == "destacados")) && <select id="destacado" name="destacado" value={selectDest} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
+                    <select id="destacado" name="destacado" value={selectDest} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
                         <option value="">No</option>
                         <option value="true">Si</option>
-                    </select>}
+                    </select>
                 </div>
                 <div>
                     <label className="font-semibold">Otros</label>
-                    {(!exist || (inputEdit == "otros")) && <input type="text" name="otros" value={product.otros} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder=""></input>}
-                    {!(!exist || (inputEdit == "otros")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("otros")}}>Otros</p>}
+                    <input type="text" name="otros" value={product.otros} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder=""></input>
                 </div>
-                {!exist && <div>
+                <div>
                     <label className="font-semibold">ID del producto</label>
                     <input type="text" name="id" value={idProduct} onChange={handleChangeId} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
-                </div>}
+                </div>
                 <button type="submit" onClick={handleClick} className="bg-gray-100 border border-gray-300 p-2 rounded text-lg hover:bg-gray-200">Agregar producto</button>
             </form>
         </section>
