@@ -4,6 +4,8 @@ import NavBar from './components/NavBar';
 import Aside from './components/Aside';
 import Products from './pages/Products';
 import EditTemplate from './pages/EditTemplate';
+import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
 
@@ -14,10 +16,11 @@ function App() {
         <Aside />
         <main className="sm:h-[100dvh] w-full pt-[96px] pb-4 px-4 bg-gray-100">
           <Routes>
+            <Route path="/login" element={<Login />} />
             {/* <Route path="/" element={<Home />} /> */}
-            <Route path="/" element={<Products />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/edit/:id" element={<EditTemplate />} />
+            <Route path="/" element={<ProtectedRoute element={<Products />} />} />
+            <Route path="/products" element={<ProtectedRoute element={<Products />} />} />
+            <Route path="/edit/:id" element={<ProtectedRoute element={<EditTemplate />} />} />
           </Routes>
         </main>
       </div>

@@ -1,5 +1,6 @@
 import Logo from "../assets/logos/b-admin-panel.png"
 import Search from "../assets/icons/search.svg"
+import SignOut from "./SignOut";
 
 const NavBar = () => {
     return (
@@ -11,6 +12,7 @@ const NavBar = () => {
             </div>
             <div>
                 <p>Notificaciones</p>
+                <SignOut />
             </div>
         </nav>
     )
