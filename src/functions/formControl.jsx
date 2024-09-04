@@ -1,0 +1,171 @@
+import { useEffect, useReducer } from "react";
+
+const initialState = { // DEFINO EL ESTADO INICIAL DE CADA ENTRADA DE LOS PRODUCTOS
+    id: "",
+    url: "",
+    previewUrl: "",
+    product: {
+        nombre: "",
+        descripcion: "",
+        url: "",
+        nombreImg: "",
+        moneda: "",
+        precio: null,
+        opcionales: {},
+        caracteristicas: {},
+        categoria: "",
+        subcategoria: "",
+        destacado: "",
+        otros: ""
+    }
+}
+
+function reducer(state, action) { // CREO LA FUNCIÓN REDUCER PARA MANEJAR LOS ESTADOS DE FORMA UNIFICADA
+    switch (action.type) {
+        case 'setInput': return { ...state, [action.field]: action.payload };
+        case 'setProductInput': return { ...state, product: { ...state.product, [action.field]: action.payload } };
+        case 'setObjectProducts':
+            const { objectProduct, key, value } = action.payload
+            return {
+                ...state, product: {
+                    ...state.product, [objectProduct]: {
+                        ...state.product[objectProduct], [key]: value
+                    }
+                }
+            };
+        case 'removeObjectProducts':
+            const { objectProduct: object, key: delKey } = action.payload
+            const updatedObject = { ...state.product[object] }
+            delete updatedObject[delKey]
+            return {
+                ...state, product: { ...state.product, [object]: updatedObject }
+            }
+        case 'resetForm':
+            return initialState;
+        default: return state;
+    }
+}
+
+export const useDataForm = () => {
+    const [state, dispatch] = useReducer(reducer, initialState);
+
+    const handleChange = (e, type = 'setInput', realField, realKey, realValue) => {
+        const { name, value, files } = e.target
+
+        switch(type) {
+            case 'handleChangeR':
+                dispatch({ type: 'setInput', field: name, payload: value });
+                break;
+            case 'handleChangeProductR':
+                dispatch({ type: 'setProductInput', field: name, payload: value });
+                if(name === 'categoria' && value !== 'calefactores') {
+                    dispatch({ type: 'setProductInput', field: 'subcategoria', payload: '' })
+                }
+                break;
+            case 'handleChangeObjectR':
+                if (realKey && realValue) {
+                    dispatch({
+                        type: 'setObjectProducts',
+                        payload: {
+                            objectProduct: realField,
+                            key: realKey,
+                            value: realValue
+                        }
+                    })
+                } else {
+                    console.log("Ingresar ambos valores");
+                }
+                break;
+            case 'handleRemoveObjectR':
+                dispatch({
+                    type: 'removeObjectProducts',
+                    payload: {
+                        objectProduct: realField,
+                        key: realKey
+                    }
+                })
+                break;
+            case 'handleChangeImg':
+                if (files[0]) {
+                    dispatch({type: 'setInput', field: name, payload: files[0]}) // Objeto de la imagen que contiene la información necesaria para subir la img a la base de datos
+                    
+                    const reader = new FileReader();
+            
+                    reader.onloadend = () => {
+                        dispatch({type: 'setInput', field: 'previewUrl', payload: reader.result}) // Url para previsualización
+                    };
+                    
+                    reader.readAsDataURL(files[0]);
+                }
+                break;
+        }
+    }
+
+    const resetForm = () => {
+        dispatch({ type: 'resetForm' });
+    };
+
+    useEffect(() => {
+        console.log(state);
+        
+    }, [state])
+
+    return {
+        state,
+        handleChange,
+        resetForm,
+    };
+}
+
+// const handleChangeR = (e) => { // Cambia los estados independientes dentro de initialState (R hace referencia a reduce)
+//     const { name, value } = e.target;
+//     dispatch({ type: 'setInput', field: name, payload: value });
+// }
+
+// const handleChangeProductR = (e) => { // Cambia los estados dentro del objeto product en initialState
+//     const { name, value } = e.target;
+//     dispatch({ type: 'setProductInput', field: name, payload: value });
+    
+//     if(name === 'categoria' && value !== 'calefactores') {
+//         dispatch({ type: 'setProductInput', field: 'subcategoria', payload: '' })
+//     }
+// }
+
+// const handleChangeObjectR = (tempKey, tempValue) => { // AGREGA VALORES A LOS OBJETOS (INPUTS DE DOS ENTRADAS, ej: caracteristicas)
+//     if (tempKey && tempValue) {
+//         dispatch({
+//             type: 'setObjectProducts',
+//             payload: {
+//                 objectProduct: currentField,
+//                 key: tempKey,
+//                 value: tempValue
+//             }
+//         })
+//     } else {
+//         console.log("Ingresar ambos valores");
+//     }
+// }
+
+// const handleRemoveObjectR = (key, field) => { // QUITA VALORES A LOS OBJETOS (INPUTS DE DOS ENTRADAS)  
+//     dispatch({
+//         type: 'removeObjectProducts',
+//         payload: {
+//             objectProduct: field,
+//             key: key
+//         }
+//     })
+// }
+
+// const handleChangeImg = (e) => {
+//     if (e.target.files[0]) {
+//         dispatch({type: 'setInput', field: e.target.name, payload: e.target.files[0]}) // Objeto de la imagen que contiene la información necesaria para subir la img a la base de datos
+        
+//         const reader = new FileReader();
+
+//         reader.onloadend = () => {
+//             dispatch({type: 'setInput', field: 'previewUrl', payload: reader.result}) // Url para previsualización
+//         };
+        
+//         reader.readAsDataURL(e.target.files[0]);
+//     }
+// };
