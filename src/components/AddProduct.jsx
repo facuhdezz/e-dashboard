@@ -8,12 +8,10 @@ import InputComp from './formComponents/InputComp';
 
 const AddProduct = () => {
 
-
-    // Reducer
-
+    // REDUCER // REDUCER // REDUCER // REDUCER //
     const initialState = { // DEFINO EL ESTADO INICIAL DE CADA ENTRADA DE LOS PRODUCTOS
         id: "",
-        file: "",
+        url: "",
         previewUrl: "",
         product: {
             nombre: "",
@@ -51,29 +49,34 @@ const AddProduct = () => {
                 return {
                     ...state, product: { ...state.product, [object]: updatedObject }
                 }
+            case 'resetForm':
+                return initialState;
             default: return state;
         }
     }
 
-    const handleChangeR = (e) => {
+    const handleChangeR = (e) => { // Cambia los estados independientes dentro de initialState (R hace referencia a reduce)
         const { name, value } = e.target;
         dispatch({ type: 'setInput', field: name, payload: value });
     }
 
-    const handleChangeProductR = (e) => {
+    const handleChangeProductR = (e) => { // Cambia los estados dentro del objeto product en initialState
         const { name, value } = e.target;
         dispatch({ type: 'setProductInput', field: name, payload: value });
+        
+        if(name === 'categoria' && value !== 'calefactores') {
+            dispatch({ type: 'setProductInput', field: 'subcategoria', payload: '' })
+        }
     }
 
     // ESTADOS TEMPORALES NECESARIOS PARA ACTUALIZAR CORRECTAMENTE LOS ESTADOS GENERALES DE LOS INPUTS CON DOS ENTRADAS (CLAVE ; VALOR)
-
     const [tempOpKey, setTempOpKey] = useState("");
     const [tempOpValue, setTempOpValue] = useState("");
     const [tempCaracKey, setTempCaracKey] = useState("");
     const [tempCaracValue, setTempCaracValue] = useState("");
     const [currentField, setCurrentField] = useState("");
 
-    const handleChangeObjectR = (tempKey, tempValue) => { // AGREGA VALORES A LOS OBJETOS (INPUTS DE DOS ENTRADAS)
+    const handleChangeObjectR = (tempKey, tempValue) => { // AGREGA VALORES A LOS OBJETOS (INPUTS DE DOS ENTRADAS, ej: caracteristicas)
         if (tempKey && tempValue) {
             dispatch({
                 type: 'setObjectProducts',
@@ -98,48 +101,33 @@ const AddProduct = () => {
         })
     }
 
+    const handleChangeImg = (e) => {
+        if (e.target.files[0]) {
+            dispatch({type: 'setInput', field: e.target.name, payload: e.target.files[0]}) // Objeto de la imagen que contiene la información necesaria para subir la img a la base de datos
+            
+            const reader = new FileReader();
+
+            reader.onloadend = () => {
+                dispatch({type: 'setInput', field: 'previewUrl', payload: reader.result}) // Url para previsualización
+            };
+            
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    };
+
     const [state, dispatch] = useReducer(reducer, initialState);
-
-    useEffect(() => {
-        console.log("State updated:", state);
-    }, [state]);
-
-    // Reducer
+    // REDUCER // REDUCER // REDUCER // REDUCER //
 
     const section = useRef()
     const fileInputRef = useRef(null);
 
     const { addProductToList } = useProducts()
 
-    const [isAdded, setIsAdded] = useState(false);
-
-    const [selectDest, setSelectDest] = useState("")
-    const [selectCat, setSelectCat] = useState("")
-    const [selectSubCat, setSelectSubCat] = useState("")
-    const [selectMoneda, setSelectMoneda] = useState("")
-    const [idProduct, setIdProduct] = useState("")
-    const [file, setFile] = useState(null)
-    const [url, setUrl] = useState("")
-    const [previewUrl, setPreviewUrl] = useState("")
-    const [product, setProduct] = useState({
-        nombre: "",
-        descripcion: "",
-        url: "",
-        nombreImg: "",
-        moneda: "USD",
-        precio: 0,
-        opcionales: {},
-        caracteristicas: {},
-        categoria: "calefactores",
-        subcategoria: "",
-        destacado: "",
-        otros: ""
-    });
+    const [isAdded, setIsAdded] = useState(false);    
 
     const handleClick = () => {
         setIsAdded(true);
         window.dispatchEvent(new Event('scrollToTop'));
-        console.log(product);
     };
 
     // const handleUpload = () => {
@@ -170,74 +158,8 @@ const AddProduct = () => {
     //     );
     //   };
 
-    const handleChangeImg = (e) => {
-        if (e.target.files[0]) {
-            setFile(e.target.files[0]);
-            const reader = new FileReader();
-
-            reader.onloadend = () => {
-                setPreviewUrl(reader.result);
-            };
-
-            reader.readAsDataURL(e.target.files[0]);
-        }
-    };
-
-    const handleClearImg = () => {
-        setFile(null);
-        setPreviewUrl(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-        }
-    };
-
-    const handleChangeValue = (event) => {
-        if (event.target.name === "categoria") {
-            setSelectCat(event.target.value)
-        } else if (event.target.name === "subcategoria") {
-            setSelectSubCat(event.target.value)
-        } else if (event.target.name === "destacado") {
-            setSelectDest(event.target.value)
-        } else if (event.target.name === "moneda") {
-            setSelectMoneda(event.target.value)
-        }
-    }
-
-    const handleChangeProduct = ({ target: { name, value } }) => {
-        setProduct({ ...product, [name]: value })
-    }
-
-    const handleChangeId = (e) => {
-        setIdProduct(e.target.value)
-    }
-
-    const handleChange = (event) => {
-        handleChangeValue(event)
-        handleChangeProduct(event);
-        if (product.categoria == "aires acondicionados") {
-            setSelectSubCat("")
-        }
-    };
-
     const handleClear = () => {
-        setSelectDest("");
-        setSelectCat("calefactores");
-        setSelectSubCat("");
-        setSelectMoneda("");
-        setIdProduct("")
-        setProduct({
-            nombre: "",
-            descripcion: "",
-            url: "",
-            nombreImg: "",
-            moneda: "USD",
-            precio: null,
-            caracteristicas: {},
-            opcionales: {},
-            categoria: "calefactores",
-            subcategoria: "",
-            destacado: ""
-        });
+        dispatch({type: 'resetForm'})
         setIsAdded(false)
     }
 
@@ -252,7 +174,7 @@ const AddProduct = () => {
         <section ref={section} className="h-full overflow-y-scroll mt-4">
             {isAdded &&
                 <div className="flex flex-col gap-4 items-center">
-                    <ProductAdded nombre={state.product.nombre} descripcion={state.product.descripcion} url={product.url || previewUrl} moneda={state.product.moneda} precio={state.product.precio} caracteristicas={state.product.caracteristicas} opcionales={state.product.opcionales} categoria={state.product.categoria} subcategoria={state.product.subcategoria} destacado={state.product.destacado} />
+                    <ProductAdded nombre={state.product.nombre} descripcion={state.product.descripcion} url={state.product.url || state.previewUrl} moneda={state.product.moneda} precio={state.product.precio} caracteristicas={state.product.caracteristicas} opcionales={state.product.opcionales} categoria={state.product.categoria} subcategoria={state.product.subcategoria} destacado={state.product.destacado} />
                     <div className="flex flex-col gap-2">
                         <button onClick={sendProduct} className="bg-green-800 text-white p-2 rounded-lg hover:bg-green-700">Confirmar</button>
                         <button onClick={handleClear} className="bg-red-800 text-white p-2 rounded-lg hover:bg-red-700">Eliminar producto</button>
@@ -267,10 +189,10 @@ const AddProduct = () => {
                 <div>
                     <label className="font-semibold">Subir imagen</label>
                     <input type="file" name="url" onChange={handleChangeImg} ref={fileInputRef} className="w-full h-8 mt-2"></input>
-                    {previewUrl && <div>
-                        <img src={previewUrl} className="w-[50%] mx-auto" />
+                    {state.previewUrl && <div>
+                        <img src={state.previewUrl} className="w-[50%] mx-auto" />
                         {/* <button onClick={handleUpload} className="text-sm lg:text-base w-full border rounded p-1 bg-green-600 hover:bg-green-700 text-white mt-2">Subir imagen</button> */}
-                        <button onClick={handleClearImg} className="text-sm lg:text-base w-full border rounded p-1 bg-red-700 hover:bg-red-800 text-white mt-2">Eliminar imagen</button>
+                        <button name="previewUrl" value="" onClick={handleChangeR} className="text-sm lg:text-base w-full border rounded p-1 bg-red-700 hover:bg-red-800 text-white mt-2">Eliminar imagen</button>
                     </div>
                     }
                 </div>
@@ -289,7 +211,7 @@ const AddProduct = () => {
                         <div>
                             <div className="flex gap-1">
                                 <InputComp divClass="basis-1/2" labelClass="text-sm" label="Nombre" type="text" value={tempOpKey} onChange={(e) => { currentField != 'opcionales' && setCurrentField('opcionales'); setTempOpKey(e.target.value) }} />
-                                <InputComp divClass="basis-1/2" labelClass="text-sm" label={`Valor ${product.moneda}`} type="text" value={tempOpValue} onChange={(e) => setTempOpValue(e.target.value)} />
+                                <InputComp divClass="basis-1/2" labelClass="text-sm" label={`Valor ${state.product.moneda}`} type="text" value={tempOpValue} onChange={(e) => setTempOpValue(e.target.value)} />
                             </div>
                             <button onClick={() => { handleChangeObjectR(tempOpKey, tempOpValue); setTempOpKey(''); setTempOpValue('') }} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Opcional</button>
                             <ul>
