@@ -8,6 +8,12 @@ const ProductAdded = (product) => {
                 <h3>{product.moneda} <span className="font-semibold">{product.precio}</span></h3>
                 <h4>Categoría: <span className="font-semibold">{product.categoria}</span></h4>
                 {product.categoria == "calefactores" && <h5>Subcategoría: <span className="font-semibold">{product.subcategoria}</span></h5>}
+                <h1>Opcionales:</h1>
+                <ul>
+                    {Object.entries(product.opcionales).map(([key, value]) => (
+                        <li key={key}>+ {key}: {value}</li>
+                    ))}
+                </ul>
                 <h1>Características:</h1>
                 <ul>
                     {Object.entries(product.caracteristicas).map(([key, value]) => (

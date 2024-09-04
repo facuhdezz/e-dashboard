@@ -1,5 +1,5 @@
 import Close from '../assets/icons/close.svg'
-import { useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import ProductAdded from "./ProductAdded";
 import { doc, getFirestore, setDoc, Timestamp } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
@@ -8,7 +8,106 @@ import InputComp from './formComponents/InputComp';
 
 const AddProduct = () => {
 
+
+    // Reducer
+
+    const initialState = { // DEFINO EL ESTADO INICIAL DE CADA ENTRADA DE LOS PRODUCTOS
+        id: "",
+        file: "",
+        previewUrl: "",
+        product: {
+            nombre: "",
+            descripcion: "",
+            url: "",
+            nombreImg: "",
+            moneda: "",
+            precio: null,
+            opcionales: {},
+            caracteristicas: {},
+            categoria: "",
+            subcategoria: "",
+            destacado: "",
+            otros: ""
+        }
+    }
+
+    function reducer(state, action) { // CREO LA FUNCIÓN REDUCER PARA MANEJAR LOS ESTADOS DE FORMA UNIFICADA
+        switch (action.type) {
+            case 'setInput': return { ...state, [action.field]: action.payload };
+            case 'setProductInput': return { ...state, product: { ...state.product, [action.field]: action.payload } };
+            case 'setObjectProducts':
+                const { objectProduct, key, value } = action.payload
+                return {
+                    ...state, product: {
+                        ...state.product, [objectProduct]: {
+                            ...state.product[objectProduct], [key]: value
+                        }
+                    }
+                };
+            case 'removeObjectProducts':
+                const { objectProduct: object, key: delKey } = action.payload
+                const updatedObject = { ...state.product[object] }
+                delete updatedObject[delKey]
+                return {
+                    ...state, product: { ...state.product, [object]: updatedObject }
+                }
+            default: return state;
+        }
+    }
+
+    const handleChangeR = (e) => {
+        const { name, value } = e.target;
+        dispatch({ type: 'setInput', field: name, payload: value });
+    }
+
+    const handleChangeProductR = (e) => {
+        const { name, value } = e.target;
+        dispatch({ type: 'setProductInput', field: name, payload: value });
+    }
+
+    // ESTADOS TEMPORALES NECESARIOS PARA ACTUALIZAR CORRECTAMENTE LOS ESTADOS GENERALES DE LOS INPUTS CON DOS ENTRADAS (CLAVE ; VALOR)
+
+    const [tempOpKey, setTempOpKey] = useState("");
+    const [tempOpValue, setTempOpValue] = useState("");
+    const [tempCaracKey, setTempCaracKey] = useState("");
+    const [tempCaracValue, setTempCaracValue] = useState("");
+    const [currentField, setCurrentField] = useState("");
+
+    const handleChangeObjectR = (tempKey, tempValue) => { // AGREGA VALORES A LOS OBJETOS (INPUTS DE DOS ENTRADAS)
+        if (tempKey && tempValue) {
+            dispatch({
+                type: 'setObjectProducts',
+                payload: {
+                    objectProduct: currentField,
+                    key: tempKey,
+                    value: tempValue
+                }
+            })
+        } else {
+            console.log("Ingresar ambos valores");
+        }
+    }
+
+    const handleRemoveObjectR = (key, field) => { // QUITA VALORES A LOS OBJETOS (INPUTS DE DOS ENTRADAS)  
+        dispatch({
+            type: 'removeObjectProducts',
+            payload: {
+                objectProduct: field,
+                key: key
+            }
+        })
+    }
+
+    const [state, dispatch] = useReducer(reducer, initialState);
+
+    useEffect(() => {
+        console.log("State updated:", state);
+    }, [state]);
+
+    // Reducer
+
     const section = useRef()
+    const fileInputRef = useRef(null);
 
     const { addProductToList } = useProducts()
 
@@ -18,15 +117,10 @@ const AddProduct = () => {
     const [selectCat, setSelectCat] = useState("")
     const [selectSubCat, setSelectSubCat] = useState("")
     const [selectMoneda, setSelectMoneda] = useState("")
-    const [opcional, setOpcional] = useState("")
-    const [valorOpcional, setValorOpcional] = useState("")
-    const [caracteristica, setCaracteristica] = useState("")
-    const [valorCaracteristica, setValorCaracteristica] = useState("")
     const [idProduct, setIdProduct] = useState("")
     const [file, setFile] = useState(null)
     const [url, setUrl] = useState("")
     const [previewUrl, setPreviewUrl] = useState("")
-    const fileInputRef = useRef(null);
     const [product, setProduct] = useState({
         nombre: "",
         descripcion: "",
@@ -76,22 +170,6 @@ const AddProduct = () => {
     //     );
     //   };
 
-    const removeCaract = (key) => {
-        setProduct(prevProduct => {
-            const updateCaract = { ...prevProduct.caracteristicas }
-            delete updateCaract[key]
-            return { ...prevProduct, caracteristicas: updateCaract }
-        })
-    }
-
-    const removeOpcional = (key) => {
-        setProduct(prevProduct => {
-            const updateOpcional = { ...prevProduct.opcionales }
-            delete updateOpcional[key]
-            return { ...prevProduct, opcionales: updateOpcional }
-        })
-    }
-
     const handleChangeImg = (e) => {
         if (e.target.files[0]) {
             setFile(e.target.files[0]);
@@ -131,48 +209,6 @@ const AddProduct = () => {
 
     const handleChangeId = (e) => {
         setIdProduct(e.target.value)
-    }
-
-    const handleChangeCaract = (event) => {
-        if (event.target.name === "nombreCar") {
-            setCaracteristica(event.target.value)
-        } else if (event.target.name === "valorCar") {
-            setValorCaracteristica(event.target.value)
-        }
-    }
-
-    const handleChangeOpcional = (event) => {
-        if (event.target.name === "nombreOp") {
-            setOpcional(event.target.value)
-        } else if (event.target.name === "valorOp") {
-            setValorOpcional(event.target.value)
-        }
-    }
-
-    const handleSetCaract = (e) => {
-        e.preventDefault()
-        setProduct((prevProduct) => ({
-            ...prevProduct,
-            caracteristicas: {
-                ...prevProduct.caracteristicas,
-                [caracteristica]: valorCaracteristica
-            }
-        }))
-        setCaracteristica("")
-        setValorCaracteristica("")
-    }
-
-    const handleSetOpcional = (e) => {
-        e.preventDefault()
-        setProduct((prevProduct) => ({
-            ...prevProduct,
-            opcionales: {
-                ...prevProduct.opcionales,
-                [opcional]: valorOpcional
-            }
-        }))
-        setCaracteristica("")
-        setValorCaracteristica("")
     }
 
     const handleChange = (event) => {
@@ -216,7 +252,7 @@ const AddProduct = () => {
         <section ref={section} className="h-full overflow-y-scroll mt-4">
             {isAdded &&
                 <div className="flex flex-col gap-4 items-center">
-                    <ProductAdded nombre={product.nombre} descripcion={product.descripcion} url={product.url || previewUrl} moneda={product.moneda} precio={product.precio} caracteristicas={product.caracteristicas} categoria={product.categoria} subcategoria={product.subcategoria} destacado={product.destacado} />
+                    <ProductAdded nombre={state.product.nombre} descripcion={state.product.descripcion} url={product.url || previewUrl} moneda={state.product.moneda} precio={state.product.precio} caracteristicas={state.product.caracteristicas} opcionales={state.product.opcionales} categoria={state.product.categoria} subcategoria={state.product.subcategoria} destacado={state.product.destacado} />
                     <div className="flex flex-col gap-2">
                         <button onClick={sendProduct} className="bg-green-800 text-white p-2 rounded-lg hover:bg-green-700">Confirmar</button>
                         <button onClick={handleClear} className="bg-red-800 text-white p-2 rounded-lg hover:bg-red-700">Eliminar producto</button>
@@ -225,8 +261,8 @@ const AddProduct = () => {
             }
             <form className="flex flex-col gap-4 divide-y mt-3" onSubmit={(e) => { e.preventDefault() }}>
                 <div className="flex flex-col gap-3">
-                    <InputComp labelClass="font-semibold" label="Nombre del producto" type="text" name="nombre" value={product.nombre} onChange={handleChange} placeholder="Eco Start 12" />
-                    <InputComp labelClass="font-semibold" label="Descripción del producto" type="text" name="descripcion" value={product.descripcion} onChange={handleChange} placeholder="Calefactor a pellet Eco Start 12 12kw" />
+                    <InputComp labelClass="font-semibold" label="Nombre del producto" type="text" name="nombre" value={state.product.nombre} onChange={handleChangeProductR} placeholder="Eco Start 12" />
+                    <InputComp labelClass="font-semibold" label="Descripción del producto" type="text" name="descripcion" value={state.product.descripcion} onChange={handleChangeProductR} placeholder="Calefactor a pellet Eco Start 12 12kw" />
                 </div>
                 <div>
                     <label className="font-semibold">Subir imagen</label>
@@ -241,23 +277,24 @@ const AddProduct = () => {
                 <div className="flex flex-col gap-3">
                     <div>
                         <label className="font-semibold">Mondeda</label>
-                        <select id="moneda" name="moneda" onChange={handleChange} value={selectMoneda} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
+                        <select id="moneda" name="moneda" onChange={handleChangeProductR} value={state.product.moneda} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
+                            <option value="" disabled>Seleccione el tipo de moneda</option>
                             <option value="USD" >USD - Dólares</option>
                             <option value="$">$UY - Pesos</option>
                         </select>
                     </div>
-                    <InputComp labelClass="font-semibold" label="Precio" type="text" name="precio" value={product.precio} onChange={handleChange} placeholder="" />
+                    <InputComp labelClass="font-semibold" label="Precio" type="text" name="precio" value={state.product.precio} onChange={handleChangeProductR} placeholder="" />
                     <div>
                         <h1 className="font-semibold">Opcionales</h1>
                         <div>
                             <div className="flex gap-1">
-                                <InputComp divClass="basis-1/2" labelClass="text-sm" label="Nombre" type="text" name="nombreOp" value={opcional} onChange={handleChangeOpcional} />
-                                <InputComp divClass="basis-1/2" labelClass="text-sm" label={`Valor ${product.moneda}`} type="text" name="valorOp" value={valorOpcional} onChange={handleChangeOpcional} />
+                                <InputComp divClass="basis-1/2" labelClass="text-sm" label="Nombre" type="text" value={tempOpKey} onChange={(e) => { currentField != 'opcionales' && setCurrentField('opcionales'); setTempOpKey(e.target.value) }} />
+                                <InputComp divClass="basis-1/2" labelClass="text-sm" label={`Valor ${product.moneda}`} type="text" value={tempOpValue} onChange={(e) => setTempOpValue(e.target.value)} />
                             </div>
-                            <button onClick={handleSetOpcional} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Opcional</button>
+                            <button onClick={() => { handleChangeObjectR(tempOpKey, tempOpValue); setTempOpKey(''); setTempOpValue('') }} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Opcional</button>
                             <ul>
-                                {product.opcionales && Object.entries(product.opcionales).map(([key, value]) => (
-                                    <li key={key} className="flex flex-row items-center text-sm"><img src={Close} onClick={() => removeOpcional(key)} className="w-5 mr-2 hover:cursor-pointer opacity-80" /> {key}: {value}</li>
+                                {state.product.opcionales && Object.entries(state.product.opcionales).map(([key, value]) => (
+                                    <li key={key} className="flex flex-row items-center text-sm"><img src={Close} onClick={() => handleRemoveObjectR(key, 'opcionales')} className="w-5 mr-2 hover:cursor-pointer opacity-80" /> {key}: {value}</li>
                                 ))}
                             </ul>
                         </div>
@@ -267,13 +304,13 @@ const AddProduct = () => {
                     <h1 className="font-semibold">Características</h1>
                     <div>
                         <div className="flex gap-1">
-                            <InputComp divClass="basis-1/2" labelClass="text-sm" label="Nombre" type="text" name="nombreCar" value={caracteristica} onChange={handleChangeCaract} />
-                            <InputComp divClass="basis-1/2" labelClass="text-sm" label="Valor" type="text" name="valorCar" value={valorCaracteristica} onChange={handleChangeCaract} />
+                            <InputComp divClass="basis-1/2" labelClass="text-sm" label="Nombre" type="text" name="nombreCar" value={tempCaracKey} onChange={(e) => { currentField != 'caracteristicas' && setCurrentField('caracteristicas'); setTempCaracKey(e.target.value) }} />
+                            <InputComp divClass="basis-1/2" labelClass="text-sm" label="Valor" type="text" name="valorCar" value={tempCaracValue} onChange={(e) => setTempCaracValue(e.target.value)} />
                         </div>
-                        <button onClick={handleSetCaract} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Característica</button>
+                        <button onClick={() => { handleChangeObjectR(tempCaracKey, tempCaracValue); setTempCaracKey(''); setTempCaracValue('') }} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Característica</button>
                         <ul>
-                            {product.caracteristicas && Object.entries(product.caracteristicas).map(([key, value]) => (
-                                <li key={key} className="flex flex-row items-center text-sm"><img src={Close} onClick={() => removeCaract(key)} className="w-5 mr-2 hover:cursor-pointer opacity-80" /> {key}: {value}</li>
+                            {state.product.caracteristicas && Object.entries(state.product.caracteristicas).map(([key, value]) => (
+                                <li key={key} className="flex flex-row items-center text-sm"><img src={Close} onClick={() => handleRemoveObjectR(key, 'caracteristicas')} className="w-5 mr-2 hover:cursor-pointer opacity-80" /> {key}: {value}</li>
                             ))}
                         </ul>
                     </div>
@@ -281,15 +318,17 @@ const AddProduct = () => {
                 <div className="flex flex-col gap-3">
                     <div>
                         <label className="font-semibold">Categoría</label>
-                        <select id="categoria" name="categoria" value={selectCat} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
+                        <select id="categoria" name="categoria" value={state.product.categoria} onChange={handleChangeProductR} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
+                            <option value="" disabled>Seleccione la categoría del producto</option>
                             <option value="calefactores">Calefactores</option>
                             <option value="aires acondicionados">Aires Acondicionados</option>
                             <option value="otros productos">Otros Productos</option>
                         </select>
                     </div>
-                    {selectCat == "calefactores" && <div>
+                    {state.product.categoria == "calefactores" && <div>
                         <label className="font-semibold">Sub Categoría</label>
-                        <select id="subcategoria" name="subcategoria" value={selectSubCat} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
+                        <select id="subcategoria" name="subcategoria" value={state.product.subcategoria} onChange={handleChangeProductR} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
+                            <option value="" disabled>Seleccione la subcategoría</option>
                             <option value="pellet">Calefactores a pellet</option>
                             <option value="leña">Calefactores a leña</option>
                         </select>
@@ -297,13 +336,13 @@ const AddProduct = () => {
                 </div>
                 <div>
                     <label className="font-semibold">¿Producto destacado?</label>
-                    <select id="destacado" name="destacado" value={selectDest} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
+                    <select id="destacado" name="destacado" value={state.product.destacado} onChange={handleChangeProductR} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
                         <option value="">No</option>
                         <option value="true">Si</option>
                     </select>
                 </div>
-                <InputComp labelClass="font-semibold" label="Otros" type="text" name="otros" value={product.otros} onChange={handleChange} />
-                <InputComp labelClass="font-semibold" label="ID del producto" type="text" name="id" value={idProduct} onChange={handleChangeId} />
+                <InputComp labelClass="font-semibold" label="Otros" type="text" name="otros" value={state.product.otros} onChange={handleChangeProductR} />
+                <InputComp labelClass="font-semibold" label="ID del producto" type="text" name="id" value={state.id} onChange={handleChangeR} />
                 <button type="submit" onClick={handleClick} className="bg-gray-100 border border-gray-300 p-2 rounded text-lg hover:bg-gray-200">Agregar producto</button>
             </form>
         </section>
