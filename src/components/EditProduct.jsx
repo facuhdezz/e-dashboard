@@ -64,30 +64,30 @@ const EditProduct = ({ item }) => {
                 </div>
             } */}
 
-            <div className="flex flex-col gap-8 divide-y mt-3">
+            <div className="flex flex-col gap-4 divide-y mt-3">
 
                 <div>
                     {!(!exist || (inputEdit == "nombre")) && <div className="flex flex-row gap-2 items-center mt-2"><h1 className="text-base font-semibold">Nombre del producto: <span className="font-normal">{state.product.nombre}</span></h1><img className="w-6 hover:cursor-pointer hover:scale-110 duration-100" src={Edit} onClick={() => { setInputEdit("nombre") ; setIsEdit(false) }} /></div>}
-                    <FormName isEdit={isEdit} state={state} handleChange={handleChange} />
-                    {(!isEdit && inputEdit == "nombre") && <img className="hover:scale-110 duration-100 hover:cursor-pointer" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
+                    <FormName isEdit={isEdit} inputEdit={inputEdit} state={state} handleChange={handleChange} />
+                    {(!isEdit && inputEdit == "nombre") && <img className="hover:scale-110 duration-100 hover:cursor-pointer mt-2" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
                 </div>
 
                 <div>
                     {!(!exist || (inputEdit == "descripcion")) && <div className="flex flex-row gap-2 items-center mt-2"><h1 className="text-base font-semibold">Descripcion del producto: <span className="font-normal">{state.product.descripcion}</span></h1><img className="w-6 hover:cursor-pointer hover:scale-110 duration-100" src={Edit} onClick={() => { setInputEdit("descripcion") ; setIsEdit(false) }} /></div>}
-                    <FormDescription isEdit={isEdit} state={state} handleChange={handleChange} />
-                    {(!isEdit && inputEdit == "descripcion") && <img className="hover:scale-110 duration-100 hover:cursor-pointer" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
+                    <FormDescription isEdit={isEdit} inputEdit={inputEdit} state={state} handleChange={handleChange} />
+                    {(!isEdit && inputEdit == "descripcion") && <img className="hover:scale-110 duration-100 hover:cursor-pointer mt-2" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
                 </div>
 
                 <div>
                     {!(!exist || (inputEdit == "moneda")) && <div className="flex flex-row gap-2 items-center mt-2"><h1 className="text-base font-semibold">Tipo de moneda: <span className="font-normal">{state.product.moneda}</span></h1><img className="w-6 hover:cursor-pointer hover:scale-110 duration-100" src={Edit} onClick={() => { setInputEdit("moneda") ; setIsEdit(false) }} /></div>}
-                    <FormMoneda isEdit={isEdit} state={state} handleChange={handleChange} />
-                    {(!isEdit && inputEdit == "moneda") && <img className="hover:scale-110 duration-100 hover:cursor-pointer" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
+                    <FormMoneda isEdit={isEdit} inputEdit={inputEdit} state={state} handleChange={handleChange} />
+                    {(!isEdit && inputEdit == "moneda") && <img className="hover:scale-110 duration-100 hover:cursor-pointer mt-2" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
                 </div>
 
                 <div>
                     {!(!exist || (inputEdit == "precio")) && <div className="flex flex-row gap-2 items-center mt-2"><h1 className="text-base font-semibold">Precio del producto: <span className="font-normal">{state.product.precio}</span></h1><img className="w-6 hover:cursor-pointer hover:scale-110 duration-100" src={Edit} onClick={() => { setInputEdit("precio") ; setIsEdit(false) }} /></div>}
-                    <FormPrecio isEdit={isEdit} state={state} handleChange={handleChange} />
-                    {(!isEdit && inputEdit == "precio") && <img className="hover:scale-110 duration-100 hover:cursor-pointer" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
+                    <FormPrecio isEdit={isEdit} inputEdit={inputEdit} state={state} handleChange={handleChange} />
+                    {(!isEdit && inputEdit == "precio") && <img className="hover:scale-110 duration-100 hover:cursor-pointer mt-2" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
                 </div>
 
                 <div>
@@ -99,8 +99,8 @@ const EditProduct = ({ item }) => {
                             ))}
                         </ul>
                         <img className="w-6 hover:cursor-pointer hover:scale-110 duration-100" src={Edit} onClick={() => { setInputEdit("opcionales") ; setIsEdit(false) }} /></div>}
-                    <FormOpcionales isEdit={isEdit} state={state} handleChange={handleChange} tempOpKey={tempOpKey} tempOpValue={tempOpValue} currentField={currentField} updateKey={updateOpKey} updateValue={updateOpValue} updateField={updateField} />
-                    {(!isEdit && inputEdit == "opcionales") && <img className="hover:scale-110 duration-100 hover:cursor-pointer" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
+                    <FormOpcionales isEdit={isEdit} inputEdit={inputEdit} state={state} handleChange={handleChange} tempOpKey={tempOpKey} tempOpValue={tempOpValue} currentField={currentField} updateKey={updateOpKey} updateValue={updateOpValue} updateField={updateField} />
+                    {(!isEdit && inputEdit == "opcionales") && <img className="hover:scale-110 duration-100 hover:cursor-pointer mt-2" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
                 </div>
 
                 <div>
@@ -112,32 +112,32 @@ const EditProduct = ({ item }) => {
                             ))}
                         </ul>
                         <img className="w-6 hover:cursor-pointer hover:scale-110 duration-100" src={Edit} onClick={() => { setInputEdit("caracteristicas") ; setIsEdit(false) }} /></div>}
-                    <FormCaracteristicas isEdit={isEdit} state={state} handleChange={handleChange} tempCaracKey={tempCaracKey} tempCaracValue={tempCaracValue} currentField={currentField} updateKey={updateCaracKey} updateValue={updateCaracValue} updateField={updateField} />
-                    {(!isEdit && inputEdit == "caracteristicas") && <img className="hover:scale-110 duration-100 hover:cursor-pointer" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
+                    <FormCaracteristicas isEdit={isEdit} inputEdit={inputEdit} state={state} handleChange={handleChange} tempCaracKey={tempCaracKey} tempCaracValue={tempCaracValue} currentField={currentField} updateKey={updateCaracKey} updateValue={updateCaracValue} updateField={updateField} />
+                    {(!isEdit && inputEdit == "caracteristicas") && <img className="hover:scale-110 duration-100 hover:cursor-pointer mt-2" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
                 </div>
 
                 <div>
                     {!(!exist || (inputEdit == "categoria")) && <div className="flex flex-row gap-2 items-center mt-2"><h1 className="text-base font-semibold">Categoría: <span className="font-normal">{state.product.categoria}</span></h1><img className="w-6 hover:cursor-pointer hover:scale-110 duration-100" src={Edit} onClick={() => { setInputEdit("categoria") ; setIsEdit(false) }} /></div>}
-                    <FormCategoria isEdit={isEdit} state={state} handleChange={handleChange} />
-                    {(!isEdit && inputEdit == "categoria") && <img className="hover:scale-110 duration-100 hover:cursor-pointer" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
+                    <FormCategoria isEdit={isEdit} inputEdit={inputEdit} state={state} handleChange={handleChange} />
+                    {(!isEdit && inputEdit == "categoria") && <img className="hover:scale-110 duration-100 hover:cursor-pointer mt-2" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
                 </div>
 
-                <div>
+                {state.product.categoria == "calefactores" && <div>
                     {!(!exist || (inputEdit == "subcategoria")) && <div className="flex flex-row gap-2 items-center mt-2"><h1 className="text-base font-semibold">Subcategoría: <span className="font-normal">{state.product.subcategoria}</span></h1><img className="w-6 hover:cursor-pointer hover:scale-110 duration-100" src={Edit} onClick={() => { setInputEdit("subcategoria") ; setIsEdit(false) }} /></div>}
-                    <FormSubcategoria isEdit={isEdit} state={state} handleChange={handleChange} />
-                    {(!isEdit && inputEdit == "subcategoria") && <img className="hover:scale-110 duration-100 hover:cursor-pointer" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
-                </div>
+                    <FormSubcategoria isEdit={isEdit} inputEdit={inputEdit} state={state} handleChange={handleChange} />
+                    {(!isEdit && inputEdit == "subcategoria") && <img className="hover:scale-110 duration-100 hover:cursor-pointer mt-2" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
+                </div>}
 
                 <div>
                     {!(!exist || (inputEdit == "destacado")) && <div className="flex flex-row gap-2 items-center mt-2"><h1 className="text-base font-semibold">Producto destacado: <span className="font-normal">{state.product.destacado ? "Sí" : "No"}</span></h1><img className="w-6 hover:cursor-pointer hover:scale-110 duration-100" src={Edit} onClick={() => { setInputEdit("destacado") ; setIsEdit(false) }} /></div>}
-                    <FormDestacados isEdit={isEdit} state={state} handleChange={handleChange} />
-                    {(!isEdit && inputEdit == "destacado") && <img className="hover:scale-110 duration-100 hover:cursor-pointer" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
+                    <FormDestacados isEdit={isEdit} inputEdit={inputEdit} state={state} handleChange={handleChange} />
+                    {(!isEdit && inputEdit == "destacado") && <img className="hover:scale-110 duration-100 hover:cursor-pointer mt-2" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
                 </div>
 
                 <div>
                     {!(!exist || (inputEdit == "otros")) && <div className="flex flex-row gap-2 items-center mt-2"><h1 className="text-base font-semibold">Otros: <span className="font-normal">{state.product.otros}</span></h1><img className="w-6 hover:cursor-pointer hover:scale-110 duration-100" src={Edit} onClick={() => { setInputEdit("otros") ; setIsEdit(false) }} /></div>}
-                    <FormOtros isEdit={isEdit} state={state} handleChange={handleChange} />
-                    {(!isEdit && inputEdit == "otros") && <img className="hover:scale-110 duration-100 hover:cursor-pointer" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
+                    <FormOtros isEdit={isEdit} inputEdit={inputEdit} state={state} handleChange={handleChange} />
+                    {(!isEdit && inputEdit == "otros") && <img className="hover:scale-110 duration-100 hover:cursor-pointer mt-2" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
                 </div>
 
             </div>
