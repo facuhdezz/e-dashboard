@@ -10,7 +10,7 @@ const initialState = { // DEFINO EL ESTADO INICIAL DE CADA ENTRADA DE LOS PRODUC
         url: "",
         nombreImg: "",
         moneda: "",
-        precio: null,
+        precio: "",
         opcionales: {},
         caracteristicas: {},
         categoria: "",
@@ -86,7 +86,9 @@ export const useDataForm = () => {
                 })
                 break;
             case 'handleChangeImg':
+                console.log(files[0]);
                 if (files[0]) {
+                    
                     dispatch({type: 'setInput', field: name, payload: files[0]}) // Objeto de la imagen que contiene la información necesaria para subir la img a la base de datos
                     
                     const reader = new FileReader();
@@ -106,8 +108,7 @@ export const useDataForm = () => {
     };
 
     useEffect(() => {
-        console.log(state);
-        
+        console.log(state);        
     }, [state])
 
     return {

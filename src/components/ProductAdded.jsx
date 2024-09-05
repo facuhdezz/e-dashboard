@@ -21,6 +21,7 @@ const ProductAdded = (product) => {
                     ))}
                 </ul>
                 {product.destacado == "true" && <p className="font-semibold">Producto destacado</p>}
+                <p>{product.otros}</p>
             </div>
         </article>
     )
