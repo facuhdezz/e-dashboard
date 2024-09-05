@@ -7,6 +7,7 @@ import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/
 import { useProducts } from '../context/ProductsContext';
 import InputComp from './formComponents/InputComp';
 import { useDataForm } from '../functions/formControl';
+import { FormCaracteristicas, FormCategoria, FormDescription, FormDestacados, FormId, FormImage, FormMoneda, FormName, FormOpcionales, FormOtros, FormPrecio, FormSubcategoria } from './FormParts';
 
 const AddProduct = () => {
 
@@ -18,6 +19,22 @@ const AddProduct = () => {
     const [tempCaracValue, setTempCaracValue] = useState("");
     const [currentField, setCurrentField] = useState("");
 
+    const updateOpKey = (newKey) => {
+        setTempOpKey(newKey)
+    }
+    const updateOpValue = (newValue) => {
+        setTempOpValue(newValue)
+    }
+    const updateCaracKey = (newKey) => {
+        setTempCaracKey(newKey)
+    }
+    const updateCaracValue = (newValue) => {
+        setTempCaracValue(newValue)
+    }
+    const updateField = (newField) => {
+        setCurrentField(newField)
+    }
+
     const [validate, setValidate] = useState(false);
 
     const section = useRef()
@@ -28,7 +45,7 @@ const AddProduct = () => {
     const [isAdded, setIsAdded] = useState(false);    
 
     const handleClick = () => {
-        if(state.id && state.product.descripcion && state.product.moneda && state.product.precio && state.product.categoria (state.product.categoria !== 'calefactores' || state.product.subcategoria)) {
+        if(state.id && state.product.descripcion && state.product.moneda && state.product.precio && state.product.categoria && (state.product.categoria !== 'calefactores' || state.product.subcategoria)) {
             setIsAdded(true);
             window.dispatchEvent(new Event('scrollToTop'));
             setValidate(false);
@@ -90,97 +107,23 @@ const AddProduct = () => {
             }
             <form className="flex flex-col gap-4 divide-y mt-3" onSubmit={(e) => { e.preventDefault() }}>
                 <div className="flex flex-col gap-3">
-                    <InputComp labelClass="font-semibold" label="Nombre del producto" type="text" name="nombre" validated={validate} value={state.product.nombre} onChange={(e) =>handleChange(e, 'handleChangeProductR')} placeholder="Eco Start 12" />
-                    <InputComp labelClass="font-semibold" label="Descripción del producto" type="text" name="descripcion" validated={validate} value={state.product.descripcion} onChange={(e) =>handleChange(e, 'handleChangeProductR')} placeholder="Calefactor a pellet Eco Start 12 12kw" />
+                    <FormName state={state} validate={validate} handleChange={handleChange} />
+                    <FormDescription state={state} validate={validate} handleChange={handleChange} />
                 </div>
-                <div>
-                    <label className="font-semibold">Subir imagen</label>
-                    <input type="file" name="url" onChange={(e) => handleChange(e, 'handleChangeImg')} ref={fileInputRef} className="w-full h-8 mt-2"></input>
-                    {state.previewUrl && <div>
-                        <img src={state.previewUrl} className="w-[50%] mx-auto" />
-                        {/* <button onClick={handleUpload} className="text-sm lg:text-base w-full border rounded p-1 bg-green-600 hover:bg-green-700 text-white mt-2">Subir imagen</button> */}
-                        <button name="previewUrl" value="" onClick={(e) => handleChange(e, 'handleChangeR')} className="text-sm lg:text-base w-full border rounded p-1 bg-red-700 hover:bg-red-800 text-white mt-2">Eliminar imagen</button>
-                    </div>
-                    }
-                </div>
+                <FormImage handleChange={handleChange} state={state} fileInputRef={fileInputRef} />
                 <div className="flex flex-col gap-3">
-                    <div>
-                        <label className="font-semibold">Moneda</label>
-                        <div className="relative">
-                            <select id="moneda" name="moneda" onChange={(e) =>handleChange(e, 'handleChangeProductR')} value={state.product.moneda} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
-                                <option value="" disabled>Seleccione el tipo de moneda</option>
-                                <option value="USD" >USD - Dólares</option>
-                                <option value="$">$UY - Pesos</option>
-                            </select>
-                            {(!state.product.moneda && validate) && <img className='absolute top-1 right-5' src={Warning} alt='error: falta rellenar este campo' title="Debe rellenar este campo" />}
-                        </div>
-                    </div>
-                    <InputComp labelClass="font-semibold" label="Precio" type="text" name="precio" validated={validate} value={state.product.precio} onChange={(e) =>handleChange(e, 'handleChangeProductR')} placeholder="" />
-                    <div>
-                        <h1 className="font-semibold">Opcionales</h1>
-                        <div>
-                            <div className="flex gap-1">
-                                <InputComp divClass="basis-1/2" labelClass="text-sm" label="Nombre" type="text" value={tempOpKey} onChange={(e) => { currentField != 'opcionales' && setCurrentField('opcionales'); setTempOpKey(e.target.value) }} />
-                                <InputComp divClass="basis-1/2" labelClass="text-sm" label={`Valor ${state.product.moneda}`} type="text" value={tempOpValue} onChange={(e) => setTempOpValue(e.target.value)} />
-                            </div>
-                            <button onClick={(e) => { handleChange(e, 'handleChangeObjectR', currentField, tempOpKey, tempOpValue); setTempOpKey(''); setTempOpValue('') }} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Opcional</button>
-                            <ul>
-                                {state.product.opcionales && Object.entries(state.product.opcionales).map(([key, value]) => (
-                                    <li key={key} className="flex flex-row items-center text-sm"><img src={Close} onClick={(e) => handleChange(e, 'handleRemoveObjectR', 'opcionales', key, value)} className="w-5 mr-2 hover:cursor-pointer opacity-80" /> {key}: {value}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
+                    <FormMoneda state={state} validate={validate} handleChange={handleChange} />
+                    <FormPrecio state={state} validate={validate} handleChange={handleChange} />
+                    <FormOpcionales state={state} handleChange={handleChange} tempOpKey={tempOpKey} tempOpValue={tempOpValue} currentField={currentField} updateKey={updateOpKey} updateValue={updateOpValue} updateField={updateField} />
                 </div>
-                <div>
-                    <h1 className="font-semibold">Características</h1>
-                    <div>
-                        <div className="flex gap-1">
-                            <InputComp divClass="basis-1/2" labelClass="text-sm" label="Nombre" type="text" name="nombreCar" value={tempCaracKey} onChange={(e) => { currentField != 'caracteristicas' && setCurrentField('caracteristicas'); setTempCaracKey(e.target.value) }} />
-                            <InputComp divClass="basis-1/2" labelClass="text-sm" label="Valor" type="text" name="valorCar" value={tempCaracValue} onChange={(e) => setTempCaracValue(e.target.value)} />
-                        </div>
-                        <button onClick={(e) => { handleChange(e, 'handleChangeObjectR', currentField, tempCaracKey, tempCaracValue); setTempCaracKey(''); setTempCaracValue('') }} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Característica</button>
-                        <ul>
-                            {state.product.caracteristicas && Object.entries(state.product.caracteristicas).map(([key, value]) => (
-                                <li key={key} className="flex flex-row items-center text-sm"><img src={Close} onClick={(e) => handleChange(e, 'handleRemoveObjectR', 'caracteristicas', key, value)} className="w-5 mr-2 hover:cursor-pointer opacity-80" /> {key}: {value}</li>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
+                <FormCaracteristicas state={state} handleChange={handleChange} tempCaracKey={tempCaracKey} tempCaracValue={tempCaracValue} currentField={currentField} updateKey={updateCaracKey} updateValue={updateCaracValue} updateField={updateField}  />
                 <div className="flex flex-col gap-3">
-                    <div>
-                        <label className="font-semibold">Categoría</label>
-                        <div className="relative">
-                            <select id="categoria" name="categoria" value={state.product.categoria} onChange={(e) =>handleChange(e, 'handleChangeProductR')} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
-                                <option value="" disabled>Seleccione la categoría del producto</option>
-                                <option value="calefactores">Calefactores</option>
-                                <option value="aires acondicionados">Aires Acondicionados</option>
-                                <option value="otros productos">Otros Productos</option>
-                            </select>
-                            {(!state.product.categoria && validate) && <img className='absolute top-1 right-5' src={Warning} alt='error: falta rellenar este campo' title="Debe rellenar este campo" />}
-                        </div>
-                    </div>
-                    {state.product.categoria == "calefactores" && <div>
-                        <label className="font-semibold">Sub Categoría</label>
-                        <div className="relative">
-                            <select id="subcategoria" name="subcategoria" value={state.product.subcategoria} onChange={(e) =>handleChange(e, 'handleChangeProductR')} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
-                                <option value="" disabled>Seleccione la subcategoría</option>
-                                <option value="pellet">Calefactores a pellet</option>
-                                <option value="leña">Calefactores a leña</option>
-                            </select>
-                            {(!state.product.subcategoria && validate) && <img className='absolute top-1 right-5' src={Warning} alt='error: falta rellenar este campo' title="Debe rellenar este campo" />}
-                        </div>
-                    </div>}
+                    <FormCategoria state={state} validate={validate} handleChange={handleChange} />
+                    <FormSubcategoria state={state} validate={validate} handleChange={handleChange} />
                 </div>
-                <div>
-                    <label className="font-semibold">¿Producto destacado?</label>
-                    <select id="destacado" name="destacado" value={state.product.destacado} onChange={(e) =>handleChange(e, 'handleChangeProductR')} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
-                        <option value="">No</option>
-                        <option value="true">Si</option>
-                    </select>
-                </div>
-                <InputComp labelClass="font-semibold" label="Otros" type="text" name="otros" value={state.product.otros} onChange={(e) =>handleChange(e, 'handleChangeProductR')} />
-                <InputComp labelClass="font-semibold" label="ID del producto" type="text" name="id" validated={validate} value={state.id} onChange={(e) =>handleChange(e, 'handleChangeR')} />
+                <FormDestacados state={state} handleChange={handleChange} />
+                <FormOtros state={state} handleChange={handleChange} />
+                <FormId state={state} validate={validate} handleChange={handleChange} />
                 <button type="submit" onClick={handleClick} className="bg-gray-100 border border-gray-300 p-2 rounded text-lg hover:bg-gray-200">Agregar producto</button>
             </form>
         </section>

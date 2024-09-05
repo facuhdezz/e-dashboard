@@ -109,7 +109,7 @@ export const useDataForm = (item) => {
     }
 
     const resetForm = () => {
-        dispatch({ type: 'resetForm' });
+        dispatch({ type: 'resetForm', payload: initialState });
     };
 
     useEffect(() => {
