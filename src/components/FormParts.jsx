@@ -1,7 +1,6 @@
 import InputComp from "./formComponents/InputComp"
 import Warning from "../assets/icons/warning.svg"
 import Close from "../assets/icons/close.svg"
-import { useEffect } from "react";
 
 export const FormName = ({ validate, state, handleChange, isEdit, inputEdit = "add" }) => {
     return (

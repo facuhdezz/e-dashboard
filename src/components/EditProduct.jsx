@@ -1,16 +1,12 @@
-// ADD PRODUCT ---------------------------
 import Close from '../assets/icons/close.svg'
-import Warning from '../assets/icons/warning.svg'
 import Edit from '../assets/icons/edit.svg'
 import { useEffect, useReducer, useRef, useState } from "react";
 import ProductAdded from "./ProductAdded";
 import { doc, getFirestore, setDoc, Timestamp } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import { useProducts } from '../context/ProductsContext';
-import InputComp from './formComponents/InputComp';
 import { useDataForm } from '../functions/formControl';
 import { FormCaracteristicas, FormCategoria, FormDescription, FormDestacados, FormMoneda, FormName, FormOpcionales, FormOtros, FormPrecio, FormSubcategoria } from './FormParts';
-// ADD PRODUCT ---------------------------
 
 const EditProduct = ({ item }) => {
 
