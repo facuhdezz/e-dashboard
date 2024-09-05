@@ -1,25 +1,5 @@
 import { useEffect, useReducer } from "react";
 
-const initialState = { // DEFINO EL ESTADO INICIAL DE CADA ENTRADA DE LOS PRODUCTOS
-    id: "",
-    url: "",
-    previewUrl: "",
-    product: {
-        nombre: "",
-        descripcion: "",
-        url: "",
-        nombreImg: "",
-        moneda: "",
-        precio: "",
-        opcionales: {},
-        caracteristicas: {},
-        categoria: "",
-        subcategoria: "",
-        destacado: "",
-        otros: ""
-    }
-}
-
 function reducer(state, action) { // CREO LA FUNCIÓN REDUCER PARA MANEJAR LOS ESTADOS DE FORMA UNIFICADA
     switch (action.type) {
         case 'setInput': return { ...state, [action.field]: action.payload };
@@ -41,13 +21,38 @@ function reducer(state, action) { // CREO LA FUNCIÓN REDUCER PARA MANEJAR LOS E
                 ...state, product: { ...state.product, [object]: updatedObject }
             }
         case 'resetForm':
-            return initialState;
+            return action.payload || initialState;
         default: return state;
     }
 }
 
-export const useDataForm = () => {
+export const useDataForm = (item) => {
+
+    const initialState = { // DEFINO EL ESTADO INICIAL DE CADA ENTRADA DE LOS PRODUCTOS
+        id: item?.id || "",
+        url: item?.url || "",
+        previewUrl: "",
+        product: {
+            nombre: item?.nombre || "",
+            descripcion: item?.descripcion || "",
+            url: item?.url || "",
+            nombreImg: item?.nombreImg || "",
+            moneda: item?.moneda || "",
+            precio: item?.precio || "",
+            opcionales: item?.opcionales || {},
+            caracteristicas: item?.caracteristicas || {},
+            categoria: item?.categoria || "",
+            subcategoria: item?.subcategoria || "",
+            destacado: item?.destacado || "",
+            otros: item?.otros || ""
+        }
+    }
+    
     const [state, dispatch] = useReducer(reducer, initialState);
+
+    useEffect(() => {
+        dispatch({ type: 'resetForm', payload: initialState });
+    }, [item]);
 
     const handleChange = (e, type = 'setInput', realField, realKey, realValue) => {
         const { name, value, files } = e.target

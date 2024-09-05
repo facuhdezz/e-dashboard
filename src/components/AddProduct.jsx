@@ -11,69 +11,7 @@ import { useDataForm } from '../functions/formControl';
 const AddProduct = () => {
 
     const { state, handleChange, resetForm } = useDataForm();
-
-    // REDUCER // REDUCER // REDUCER // REDUCER //
-    // const initialState = { // DEFINO EL ESTADO INICIAL DE CADA ENTRADA DE LOS PRODUCTOS
-    //     id: "",
-    //     url: "",
-    //     previewUrl: "",
-    //     product: {
-    //         nombre: "",
-    //         descripcion: "",
-    //         url: "",
-    //         nombreImg: "",
-    //         moneda: "",
-    //         precio: null,
-    //         opcionales: {},
-    //         caracteristicas: {},
-    //         categoria: "",
-    //         subcategoria: "",
-    //         destacado: "",
-    //         otros: ""
-    //     }
-    // }
-
-    // function reducer(state, action) { // CREO LA FUNCIÓN REDUCER PARA MANEJAR LOS ESTADOS DE FORMA UNIFICADA
-    //     switch (action.type) {
-    //         case 'setInput': return { ...state, [action.field]: action.payload };
-    //         case 'setProductInput': return { ...state, product: { ...state.product, [action.field]: action.payload } };
-    //         case 'setObjectProducts':
-    //             const { objectProduct, key, value } = action.payload
-    //             return {
-    //                 ...state, product: {
-    //                     ...state.product, [objectProduct]: {
-    //                         ...state.product[objectProduct], [key]: value
-    //                     }
-    //                 }
-    //             };
-    //         case 'removeObjectProducts':
-    //             const { objectProduct: object, key: delKey } = action.payload
-    //             const updatedObject = { ...state.product[object] }
-    //             delete updatedObject[delKey]
-    //             return {
-    //                 ...state, product: { ...state.product, [object]: updatedObject }
-    //             }
-    //         case 'resetForm':
-    //             return initialState;
-    //         default: return state;
-    //     }
-    // }
-
-    // const handleChangeR = (e) => { // Cambia los estados independientes dentro de initialState (R hace referencia a reduce)
-    //     const { name, value } = e.target;
-    //     dispatch({ type: 'setInput', field: name, payload: value });
-    // }
-
-    // const handleChangeProductR = (e) => { // Cambia los estados dentro del objeto product en initialState
-    //     const { name, value } = e.target;
-    //     dispatch({ type: 'setProductInput', field: name, payload: value });
-        
-    //     if(name === 'categoria' && value !== 'calefactores') {
-    //         dispatch({ type: 'setProductInput', field: 'subcategoria', payload: '' })
-    //     }
-    // }
-
-    // // ESTADOS TEMPORALES NECESARIOS PARA ACTUALIZAR CORRECTAMENTE LOS ESTADOS GENERALES DE LOS INPUTS CON DOS ENTRADAS (CLAVE ; VALOR)
+    
     const [tempOpKey, setTempOpKey] = useState("");
     const [tempOpValue, setTempOpValue] = useState("");
     const [tempCaracKey, setTempCaracKey] = useState("");
@@ -81,48 +19,6 @@ const AddProduct = () => {
     const [currentField, setCurrentField] = useState("");
 
     const [validate, setValidate] = useState(false);
-
-    // const handleChangeObjectR = (tempKey, tempValue) => { // AGREGA VALORES A LOS OBJETOS (INPUTS DE DOS ENTRADAS, ej: caracteristicas)
-    //     if (tempKey && tempValue) {
-    //         dispatch({
-    //             type: 'setObjectProducts',
-    //             payload: {
-    //                 objectProduct: currentField,
-    //                 key: tempKey,
-    //                 value: tempValue
-    //             }
-    //         })
-    //     } else {
-    //         console.log("Ingresar ambos valores");
-    //     }
-    // }
-
-    // const handleRemoveObjectR = (key, field) => { // QUITA VALORES A LOS OBJETOS (INPUTS DE DOS ENTRADAS)  
-    //     dispatch({
-    //         type: 'removeObjectProducts',
-    //         payload: {
-    //             objectProduct: field,
-    //             key: key
-    //         }
-    //     })
-    // }
-
-    // const handleChangeImg = (e) => {
-    //     if (e.target.files[0]) {
-    //         dispatch({type: 'setInput', field: e.target.name, payload: e.target.files[0]}) // Objeto de la imagen que contiene la información necesaria para subir la img a la base de datos
-            
-    //         const reader = new FileReader();
-
-    //         reader.onloadend = () => {
-    //             dispatch({type: 'setInput', field: 'previewUrl', payload: reader.result}) // Url para previsualización
-    //         };
-            
-    //         reader.readAsDataURL(e.target.files[0]);
-    //     }
-    // };
-
-    // const [state, dispatch] = useReducer(reducer, initialState);
-    // REDUCER // REDUCER // REDUCER // REDUCER //
 
     const section = useRef()
     const fileInputRef = useRef(null);
