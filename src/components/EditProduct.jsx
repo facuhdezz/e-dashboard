@@ -1,10 +1,7 @@
 import Close from '../assets/icons/close.svg'
 import Edit from '../assets/icons/edit.svg'
 import { useEffect, useReducer, useRef, useState } from "react";
-import ProductAdded from "./ProductAdded";
 import { doc, getFirestore, setDoc, Timestamp } from "firebase/firestore";
-import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
-import { useProducts } from '../context/ProductsContext';
 import { useDataForm } from '../functions/formControl';
 import { FormCaracteristicas, FormCategoria, FormDescription, FormDestacados, FormMoneda, FormName, FormOpcionales, FormOtros, FormPrecio, FormSubcategoria } from './FormParts';
 
@@ -48,6 +45,11 @@ const EditProduct = ({ item }) => {
         }
     }, [])
 
+    const sendProduct = () => {
+        const db = getFirestore();
+        setDoc(doc(db, "products", state.id), {...state.product, createdAt: item.createdAt, updatedAt: Timestamp.now()});
+    }
+
     return (
         <section className="h-full overflow-y-scroll mt-4">
             {/* {isAdded &&
@@ -61,7 +63,6 @@ const EditProduct = ({ item }) => {
             } */}
 
             <div className="flex flex-col gap-4 divide-y mt-3">
-
                 <div>
                     {!(!exist || (inputEdit == "nombre")) && <div className="flex flex-row gap-2 items-center mt-2"><h1 className="text-base font-semibold">Nombre del producto: <span className="font-normal">{state.product.nombre}</span></h1><img className="w-6 hover:cursor-pointer hover:scale-110 duration-100" src={Edit} onClick={() => { setInputEdit("nombre") ; setIsEdit(false) }} /></div>}
                     <FormName isEdit={isEdit} inputEdit={inputEdit} state={state} handleChange={handleChange} />
@@ -136,6 +137,7 @@ const EditProduct = ({ item }) => {
                     {(!isEdit && inputEdit == "otros") && <img className="hover:scale-110 duration-100 hover:cursor-pointer mt-2" src={Close} onClick={() => {setIsEdit(true); setInputEdit("")}} />}
                 </div>
 
+                <button onClick={sendProduct} className="bg-green-800 text-white p-2 rounded-lg hover:bg-green-700">Confirmar</button>
             </div>
         </section>
     )

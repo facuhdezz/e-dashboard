@@ -174,7 +174,7 @@ export const FormSubcategoria = ({ validate, state, handleChange, isEdit, inputE
 export const FormDestacados = ({ state, handleChange, isEdit, inputEdit = "add" }) => {
     return (
         <>
-            {(!isEdit && (inputEdit == "destacados" || inputEdit == "add")) && <div>
+            {(!isEdit && (inputEdit == "destacado" || inputEdit == "add")) && <div>
                 <label className="font-semibold">¿Producto destacado?</label>
                 <select id="destacado" name="destacado" value={state.product.destacado} onChange={(e) => handleChange(e, 'handleChangeProductR')} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
                     <option value="">No</option>
