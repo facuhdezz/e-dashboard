@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import Edit from "../assets/icons/edit.svg"
 import RemoveProduct from "./RemoveProduct";
+import { usePreview } from "../context/PreviewContext";
 
 const ProductCard = ({item, onRemove}) => {
+
     return(
         <article className={`flex flex-col relative bg-gray-50 border shrink-0 gap-2 p-3 justify-between rounded ${item.clase}`}>
             <div className="float-start">
