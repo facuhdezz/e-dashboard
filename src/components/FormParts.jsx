@@ -155,7 +155,7 @@ export const FormSubcategoria = ({ validate, state, handleChange, isEdit, inputE
     return (
         <>
             {
-                state.product.categoria == "calefactores" && (!isEdit && (inputEdit == "subcategoria" || inputEdit == "add")) && <div>
+                state.product.categoria == "calefactores" && (!isEdit && (inputEdit == "categoria" || inputEdit == "add")) && <div>
                     <label className="font-semibold">Sub Categoría</label>
                     <div className="relative">
                         <select id="subcategoria" name="subcategoria" value={state.product.subcategoria} onChange={(e) => handleChange(e, 'handleChangeProductR')} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">

@@ -6,14 +6,14 @@ import ProductDetailComp from "../components/ProductDetailComp";
 
 const EditTemplate = () => {
 
-    const { productList } = useProducts()
+    const { productList, loading } = useProducts()
     const { id } = useParams()
     const [productUnique, setProductUnique] = useState(null)
 
     useEffect(() => {
         const filteredProduct = productList.find(productos => productos.id == id)
         setProductUnique(filteredProduct)
-    }, [id])
+    }, [id, loading])
 
     return (
         <section className="flex flex-col lg:flex-row gap-3 h-full">
@@ -25,7 +25,7 @@ const EditTemplate = () => {
             <article className="sm:basis-1/2 p-3 border rounded-lg overflow-y-scroll bg-white">
                 <div>
                     <h1 className="text-xl font-semibold">Editar un producto</h1>
-                    {productUnique && <EditProduct item={productUnique} />}
+                    {(!loading && productUnique) && <EditProduct item={productUnique} />}
                 </div>
             </article>
         </section>
