@@ -8,7 +8,7 @@ import { FormCaracteristicas, FormCategoria, FormDescription, FormDestacados, Fo
 
 const AddProduct = () => {
 
-    const { state, handleChange, resetForm } = useDataForm();
+    const { state, handleChange, handleChangeUrl, resetForm } = useDataForm();
     
     const [tempOpKey, setTempOpKey] = useState("");
     const [tempOpValue, setTempOpValue] = useState("");
@@ -51,33 +51,35 @@ const AddProduct = () => {
         }   
     };
 
-    // const handleUpload = () => {
-    //     const storage = getStorage()
-    //     if (!file) return;
-    //     const storageRef = ref(storage, `productImg/${file.name}`);
-    //     const uploadTask = uploadBytesResumable(storageRef, file);
+    const handleUpload = () => {
+        const file = state.url;
+        const storage = getStorage()
+        if (!file) return;
+        const storageRef = ref(storage, `productImg/${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
 
-    //     uploadTask.on(
-    //       'state_changed',
-    //       null,
-    //       (error) => {
-    //         console.error(error);
-    //       },
-    //       () => {
-    //         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-    //             console.log(downloadURL);
-    //             setUrl(downloadURL);
-    //             setProduct((prevProduct) => ({
-    //                 ...prevProduct,
-    //                 url: downloadURL,
-    //                 nombreImg: file.name
-    //             }));
-    //         }).catch((err) => {
-    //             console.log(err);
-    //         })
-    //       }
-    //     );
-    //   };
+        uploadTask.on(
+          'state_changed',
+          null,
+          (error) => {
+            console.error(error);
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                console.log(downloadURL);
+                // setUrl(downloadURL);
+                // setProduct((prevProduct) => ({
+                //     ...prevProduct,
+                //     url: downloadURL,
+                //     nombreImg: file.name
+                // }));
+                handleChangeUrl(downloadURL)
+            }).catch((err) => {
+                console.log(err);
+            })
+          }
+        );
+      };
 
     const handleClear = () => {
         resetForm()
@@ -85,9 +87,9 @@ const AddProduct = () => {
     }
 
     const sendProduct = () => {
-        // const db = getFirestore();
-        // setDoc(doc(db, "products", idProduct), {...product, createdAt: Timestamp.now()});
-        addProductToList(product)
+        const db = getFirestore();
+        setDoc(doc(db, "products", state.id), {...state.product, createdAt: Timestamp.now()});
+        addProductToList(state.product)
         handleClear();
     }
 
@@ -107,7 +109,7 @@ const AddProduct = () => {
                     <FormName state={state} validate={validate} handleChange={handleChange} />
                     <FormDescription state={state} validate={validate} handleChange={handleChange} />
                 </div>
-                <FormImage handleChange={handleChange} state={state} fileInputRef={fileInputRef} />
+                <FormImage handleUpload={handleUpload} handleChange={handleChange} state={state} fileInputRef={fileInputRef} />
                 <div className="flex flex-col gap-3">
                     <FormMoneda state={state} validate={validate} handleChange={handleChange} />
                     <FormPrecio state={state} validate={validate} handleChange={handleChange} />

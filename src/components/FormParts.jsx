@@ -36,7 +36,7 @@ export const FormDescription = ({ validate, state, handleChange, isEdit, inputEd
     )
 }
 
-export const FormImage = ({ handleChange, fileInputRef, state, isEdit, inputEdit = "add" }) => {
+export const FormImage = ({ handleUpload, handleChange, fileInputRef, state, isEdit, inputEdit = "add" }) => {
     return (
         <>
             {(!isEdit && (inputEdit == "imagen" || inputEdit == "add")) && <div>
@@ -44,7 +44,7 @@ export const FormImage = ({ handleChange, fileInputRef, state, isEdit, inputEdit
                 <input type="file" name="url" onChange={(e) => handleChange(e, 'handleChangeImg')} ref={fileInputRef} className="w-full h-8 mt-2"></input>
                 {state.previewUrl && <div>
                     <img src={state.previewUrl} className="w-[50%] mx-auto" />
-                    {/* <button onClick={handleUpload} className="text-sm lg:text-base w-full border rounded p-1 bg-green-600 hover:bg-green-700 text-white mt-2">Subir imagen</button> */}
+                    <button onClick={handleUpload} className="text-sm lg:text-base w-full border rounded p-1 bg-green-600 hover:bg-green-700 text-white mt-2">Subir imagen</button>
                     <button name="previewUrl" value="" onClick={(e) => handleChange(e, 'handleChangeR')} className="text-sm lg:text-base w-full border rounded p-1 bg-red-700 hover:bg-red-800 text-white mt-2">Eliminar imagen</button>
                 </div>
                 }

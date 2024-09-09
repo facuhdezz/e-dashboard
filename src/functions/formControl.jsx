@@ -115,6 +115,10 @@ export const useDataForm = (item) => {
         }
     }
 
+    const handleChangeUrl = (urlValue) => {
+        dispatch({ type: 'setProductInput', field: 'url', payload: urlValue })
+    }
+
     const resetForm = () => {
         dispatch({ type: 'resetForm', payload: initialState });
     };
@@ -126,6 +130,7 @@ export const useDataForm = (item) => {
     return {
         state,
         handleChange,
+        handleChangeUrl,
         resetForm,
     };
 }
