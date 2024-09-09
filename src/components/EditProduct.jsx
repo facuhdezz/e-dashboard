@@ -135,6 +135,7 @@ const EditProduct = ({ item }) => {
                     <FormCategoria isEdit={isEdit} inputEdit={inputEdit} state={state} handleChange={handleChange} />
                     {state.product.categoria == "calefactores" && !(!exist || (inputEdit == "categoria")) && <div className="flex flex-row gap-2 items-center mt-2"><h1 className="text-base font-semibold">Subcategoría: <span className="font-normal">{state.product.subcategoria}</span></h1></div>}
                     <FormSubcategoria isEdit={isEdit} inputEdit={inputEdit} state={state} handleChange={handleChange} />
+                    {!validate && <h1 className="text-red-600">Debe agregar una subcategoría</h1>}
                     {(!isEdit && inputEdit == "categoria") && <img className="hover:scale-110 duration-100 hover:cursor-pointer mt-2" src={Close} onClick={() => { setIsEdit(true); setInputEdit("") }} />}
                 </div>
 
