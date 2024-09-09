@@ -1,68 +1,63 @@
-import Close from '../assets/icons/close.svg'
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import ProductAdded from "./ProductAdded";
 import { doc, getFirestore, setDoc, Timestamp } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import { useProducts } from '../context/ProductsContext';
+import { useDataForm } from '../functions/formControl';
+import { FormCaracteristicas, FormCategoria, FormDescription, FormDestacados, FormId, FormImage, FormMoneda, FormName, FormOpcionales, FormOtros, FormPrecio, FormSubcategoria } from './FormParts';
 
-const AddProduct = ({ item = {} }) => {
+const AddProduct = () => {
+
+    const { state, handleChange, handleChangeUrl, resetForm } = useDataForm();
+    
+    const [tempOpKey, setTempOpKey] = useState("");
+    const [tempOpValue, setTempOpValue] = useState("");
+    const [tempCaracKey, setTempCaracKey] = useState("");
+    const [tempCaracValue, setTempCaracValue] = useState("");
+    const [currentField, setCurrentField] = useState("");
+
+    const updateOpKey = (newKey) => {
+        setTempOpKey(newKey)
+    }
+    const updateOpValue = (newValue) => {
+        setTempOpValue(newValue)
+    }
+    const updateCaracKey = (newKey) => {
+        setTempCaracKey(newKey)
+    }
+    const updateCaracValue = (newValue) => {
+        setTempCaracValue(newValue)
+    }
+    const updateField = (newField) => {
+        setCurrentField(newField)
+    }
+
+    const [validate, setValidate] = useState(false);
 
     const section = useRef()
+    const fileInputRef = useRef(null);
 
     const { addProductToList } = useProducts()
 
-    const [isAdded, setIsAdded] = useState(false);
-    const [exist, setExist] = useState(null)
-    const [inputEdit, setInputEdit] = useState("")
-
-    useEffect(() => {
-        if (Object.keys(item).length > 0) {
-            setExist(true)
-        } else {
-            setExist(false)
-        }
-    }, [])
-
-    const [selectDest, setSelectDest] = useState(item.destacado || "")
-    const [selectCat, setSelectCat] = useState(item.categoria || "calefactores")
-    const [selectSubCat, setSelectSubCat] = useState(item.subcategoria || "pellet")
-    const [selectMoneda, setSelectMoneda] = useState("")
-    const [opcional, setOpcional] = useState("")
-    const [valorOpcional, setValorOpcional] = useState("")
-    const [caracteristica, setCaracteristica] = useState("")
-    const [valorCaracteristica, setValorCaracteristica] = useState("")
-    const [idProduct, setIdProduct] = useState(item.id || "")
-    const [file, setFile] = useState(null)
-    const [url, setUrl] = useState(item.url || "")
-    const [previewUrl, setPreviewUrl] = useState("")
-    const fileInputRef = useRef(null);
-    const [product, setProduct] = useState({
-        nombre: item.nombre || "",
-        descripcion: item.descripcion || "",
-        url: item.url || "",
-        nombreImg: item.nombreImg || "",
-        moneda: item.moneda || "USD",
-        precio: item.precio || 0,
-        opcionales: item.opcional || {},
-        caracteristicas: item.caracteristicas || {},
-        categoria: item.categoria || "calefactores",
-        subcategoria: item.subcategoria || "",
-        destacado: item.destacado || "",
-        otros: item.otros || ""
-    });
+    const [isAdded, setIsAdded] = useState(false);    
 
     const handleClick = () => {
-        setIsAdded(true);
-        window.dispatchEvent(new Event('scrollToTop'));
-        console.log(product);
+        if(state.id && state.product.descripcion && state.product.moneda && state.product.precio && state.product.categoria && (state.product.categoria !== 'calefactores' || state.product.subcategoria)) {
+            setIsAdded(true);
+            window.dispatchEvent(new Event('scrollToTop'));
+            setValidate(false);
+        } else {
+            setValidate(true);
+        }   
     };
 
     const handleUpload = () => {
+        const file = state.url;
         const storage = getStorage()
         if (!file) return;
         const storageRef = ref(storage, `productImg/${file.name}`);
         const uploadTask = uploadBytesResumable(storageRef, file);
-    
+
         uploadTask.on(
           'state_changed',
           null,
@@ -72,12 +67,13 @@ const AddProduct = ({ item = {} }) => {
           () => {
             getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                 console.log(downloadURL);
-                setUrl(downloadURL);
-                setProduct((prevProduct) => ({
-                    ...prevProduct,
-                    url: downloadURL,
-                    nombreImg: file.name
-                }));
+                // setUrl(downloadURL);
+                // setProduct((prevProduct) => ({
+                //     ...prevProduct,
+                //     url: downloadURL,
+                //     nombreImg: file.name
+                // }));
+                handleChangeUrl(downloadURL)
             }).catch((err) => {
                 console.log(err);
             })
@@ -85,271 +81,48 @@ const AddProduct = ({ item = {} }) => {
         );
       };
 
-    const removeCaract = (key) => {
-        setProduct(prevProduct => {
-            const updateCaract = {...prevProduct.caracteristicas}
-            delete updateCaract[key]
-            return {...prevProduct, caracteristicas: updateCaract}
-        })
-    }
-
-    const removeOpcional = (key) => {
-        setProduct(prevProduct => {
-            const updateOpcional = {...prevProduct.opcionales}
-            delete updateOpcional[key]
-            return {...prevProduct, opcionales: updateOpcional}
-        })
-    }
-
-    const handleChangeImg = (e) => {
-        if (e.target.files[0]) {
-            setFile(e.target.files[0]);
-            const reader = new FileReader();
-
-            reader.onloadend = () => {
-                setPreviewUrl(reader.result);
-            };
-
-            reader.readAsDataURL(e.target.files[0]);
-        }
-    };
-
-    const handleClearImg = () => {
-        setFile(null);
-        setPreviewUrl(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-        }
-    };
-
-    const handleChangeValue = (event) => {
-        if (event.target.name === "categoria") {
-            setSelectCat(event.target.value)
-        } else if (event.target.name === "subcategoria") {
-            setSelectSubCat(event.target.value) 
-        } else if (event.target.name === "destacado") {
-            setSelectDest(event.target.value)
-        } else if (event.target.name === "moneda") {
-            setSelectMoneda(event.target.value)
-        }
-    }
-
-    const handleChangeProduct = ({ target: { name, value } }) => {
-        setProduct({ ...product, [name]: value })
-    }
-
-    const handleChangeId = (e) => {
-        setIdProduct(e.target.value)
-    }
-
-    const handleChangeCaract = (event) => {
-        if (event.target.name === "nombreCar") {
-            setCaracteristica(event.target.value)
-        } else if (event.target.name === "valorCar") {
-            setValorCaracteristica(event.target.value)
-        }
-    }
-
-    const handleChangeOpcional = (event) => {
-        if (event.target.name === "nombreOp") {
-            setOpcional(event.target.value)
-        } else if (event.target.name === "valorOp") {
-            setValorOpcional(event.target.value)
-        }
-    }
-
-    const handleSetCaract = (e) => {
-        e.preventDefault()
-        setProduct((prevProduct) => ({
-            ...prevProduct, 
-            caracteristicas: {
-                ...prevProduct.caracteristicas,
-                [caracteristica]: valorCaracteristica
-            }
-        }))
-        setCaracteristica("")
-        setValorCaracteristica("")
-    }
-
-    const handleSetOpcional = (e) => {
-        e.preventDefault()
-        setProduct((prevProduct) => ({
-            ...prevProduct, 
-            opcionales: {
-                ...prevProduct.opcionales,
-                [opcional]: valorOpcional
-            }
-        }))
-        setCaracteristica("")
-        setValorCaracteristica("")
-    }
-
-    const handleChange = (event) => {
-        handleChangeValue(event)
-        handleChangeProduct(event);
-        if (product.categoria == "aires acondicionados") {
-            setSelectSubCat("")
-        }
-    };
-
     const handleClear = () => {
-        setSelectDest("");
-        setSelectCat("calefactores");
-        setSelectSubCat("");
-        setSelectMoneda("");
-        setIdProduct("")
-        setProduct({
-            nombre: "",
-            descripcion: "",
-            url: "",
-            nombreImg: "",
-            moneda: "USD",
-            precio: null,
-            caracteristicas: {},
-            opcionales: {},
-            categoria: "calefactores",
-            subcategoria: "",
-            destacado: ""
-        });
+        resetForm()
         setIsAdded(false)
     }
 
     const sendProduct = () => {
         const db = getFirestore();
-        setDoc(doc(db, "products", idProduct), {...product, createdAt: Timestamp.now()});
-        addProductToList(product)
+        setDoc(doc(db, "products", state.id), {...state.product, createdAt: Timestamp.now()});
+        addProductToList(state.product)
         handleClear();
     }
 
     return (
         <section ref={section} className="h-full overflow-y-scroll mt-4">
-            {isAdded && 
+            {isAdded &&
                 <div className="flex flex-col gap-4 items-center">
-                    <ProductAdded nombre={product.nombre} descripcion={product.descripcion} url={product.url || previewUrl} moneda={product.moneda} precio={product.precio} caracteristicas={product.caracteristicas} categoria={product.categoria} subcategoria={product.subcategoria} destacado={product.destacado} />
+                    <ProductAdded nombre={state.product.nombre} descripcion={state.product.descripcion} url={state.product.url || state.previewUrl} moneda={state.product.moneda} precio={state.product.precio} caracteristicas={state.product.caracteristicas} opcionales={state.product.opcionales} categoria={state.product.categoria} subcategoria={state.product.subcategoria} destacado={state.product.destacado} otros={state.product.otros} />
                     <div className="flex flex-col gap-2">
                         <button onClick={sendProduct} className="bg-green-800 text-white p-2 rounded-lg hover:bg-green-700">Confirmar</button>
                         <button onClick={handleClear} className="bg-red-800 text-white p-2 rounded-lg hover:bg-red-700">Eliminar producto</button>
                     </div>
                 </div>
-            } 
-            <form className="flex flex-col gap-4 divide-y mt-3" onSubmit={(e) => {e.preventDefault()}}>
+            }
+            <form className="flex flex-col gap-4 divide-y mt-3" onSubmit={(e) => { e.preventDefault() }}>
                 <div className="flex flex-col gap-3">
-                    <div>
-                        <label className="font-semibold">Nombre del producto</label>
-                        {(!exist || (inputEdit == "nombre")) && <input type="text" name="nombre" value={product.nombre} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder="Eco Start 12"></input>}
-                        {!(!exist || (inputEdit == "nombre")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("nombre")}}>Editar Nombre</p>}
-                    </div>
-                    <div>
-                        <label className="font-semibold">Descripción del producto</label>
-                        {(!exist || (inputEdit == "descripcion")) && <input type="text" name="descripcion" value={product.descripcion} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder="Calefactor a pellet Eco Start 12 12kw"></input>}
-                        {!(!exist || (inputEdit == "descripcion")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("descripcion")}}>Editar Descripcion</p>}
-                    </div>
+                    <FormName state={state} validate={validate} handleChange={handleChange} />
+                    <FormDescription state={state} validate={validate} handleChange={handleChange} />
                 </div>
-                {/* <div>
-                    <label>URL de la imagen</label>
-                    <input type="text" name="url" value={product.url} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder="https://i.imgur.com/aob6y6d.jpg"></input>
-                </div> */}
-                <div>
-                    <label className="font-semibold">Subir imagen</label>
-                    <input type="file" name="url" onChange={handleChangeImg} ref={fileInputRef} className="w-full h-8 mt-2"></input>
-                    {previewUrl && <div>
-                            <img src={previewUrl} className="w-[50%] mx-auto" />
-                            <button onClick={handleUpload} className="text-sm lg:text-base w-full border rounded p-1 bg-green-600 hover:bg-green-700 text-white mt-2">Subir imagen</button>
-                            <button onClick={handleClearImg} className="text-sm lg:text-base w-full border rounded p-1 bg-red-700 hover:bg-red-800 text-white mt-2">Eliminar imagen</button>     
-                        </div>               
-                    }
-                </div>
+                <FormImage handleUpload={handleUpload} handleChange={handleChange} state={state} fileInputRef={fileInputRef} />
                 <div className="flex flex-col gap-3">
-                    <div>
-                        <label className="font-semibold">Mondeda</label>
-                        {(!exist || (inputEdit == "moneda")) && <select id="moneda" name="moneda" onChange={handleChange} value={selectMoneda} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
-                            <option value="USD" >USD - Dólares</option>
-                            <option value="$">$UY - Pesos</option>
-                        </select>}
-                        {!(!exist || (inputEdit == "moneda")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("moneda")}}>Editar Moneda</p>}
-                    </div>
-                    <div>
-                        <label className="font-semibold">Precio</label>
-                        {(!exist || (inputEdit == "precio")) && <input type="number" name="precio" value={product.precio} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>}
-                        {!(!exist || (inputEdit == "precio")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("precio")}}>Editar Precio</p>}
-                    </div>
-                    <div>
-                    <h1 className="font-semibold">Opcionales</h1>
-                    {!(!exist || (inputEdit == "opcionales")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("opcionales")}}>Editar Opcionales</p>}
-                    {(!exist || (inputEdit == "opcionales")) && <div><div className="flex gap-1">
-                        <div className="basis-1/2">
-                            <label className="text-sm">Nombre</label>
-                            <input type="text" name="nombreOp" value={opcional} onChange={handleChangeOpcional} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
-                        </div>
-                        <div className="basis-1/2">
-                            <label className="text-sm">Valor {product.moneda}</label>
-                            <input type="text" name="valorOp" value={valorOpcional} onChange={handleChangeOpcional} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
-                        </div>
-                    </div>                    
-                    <button onClick={handleSetOpcional} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Opcional</button>
-                    <ul>
-                        {product.opcionales && Object.entries(product.opcionales).map(([key, value]) => (
-                            <li key={key} className="flex flex-row items-center text-sm"><img src={Close} onClick={() => removeOpcional(key)} className="w-5 mr-2 hover:cursor-pointer opacity-80" /> {key}: {value}</li>
-                        ))}
-                    </ul></div>}
+                    <FormMoneda state={state} validate={validate} handleChange={handleChange} />
+                    <FormPrecio state={state} validate={validate} handleChange={handleChange} />
+                    <FormOpcionales state={state} handleChange={handleChange} tempOpKey={tempOpKey} tempOpValue={tempOpValue} currentField={currentField} updateKey={updateOpKey} updateValue={updateOpValue} updateField={updateField} />
                 </div>
-                </div>
-                <div>
-                    <h1 className="font-semibold">Características</h1>
-                    {!(!exist || (inputEdit == "caracteristicas")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("caracteristicas")}}>Editar Caracteristicas</p>}
-                    {(!exist || (inputEdit == "caracteristicas")) && <div><div className="flex gap-1">
-                        <div className="basis-1/2">
-                            <label className="text-sm">Nombre</label>
-                            <input type="text" name="nombreCar" value={caracteristica} onChange={handleChangeCaract} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
-                        </div>
-                        <div className="basis-1/2">
-                            <label className="text-sm">Valor</label>
-                            <input type="text" name="valorCar" value={valorCaracteristica} onChange={handleChangeCaract} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
-                        </div>
-                    </div>                    
-                    <button onClick={handleSetCaract} className="text-sm border rounded float-right mt-2 p-1 hover:bg-gray-100">+ Agregar Característica</button>
-                    <ul>
-                        {product.caracteristicas && Object.entries(product.caracteristicas).map(([key, value]) => (
-                            <li key={key} className="flex flex-row items-center text-sm"><img src={Close} onClick={() => removeCaract(key)} className="w-5 mr-2 hover:cursor-pointer opacity-80" /> {key}: {value}</li>
-                        ))}
-                    </ul></div>}
-                </div>
+                <FormCaracteristicas state={state} handleChange={handleChange} tempCaracKey={tempCaracKey} tempCaracValue={tempCaracValue} currentField={currentField} updateKey={updateCaracKey} updateValue={updateCaracValue} updateField={updateField}  />
                 <div className="flex flex-col gap-3">
-                    <div>
-                        <label className="font-semibold">Categoría</label>
-                        {!(!exist || (inputEdit == "categoria")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("categoria")}}>Editar Categoría</p>}
-                        {(!exist || (inputEdit == "categoria")) && <select id="categoria" name="categoria" value={selectCat} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
-                            <option value="calefactores">Calefactores</option>
-                            <option value="aires acondicionados">Aires Acondicionados</option>
-                            <option value="otros productos">Otros Productos</option>
-                        </select>}
-                    </div>
-                    {selectCat == "calefactores" && <div>
-                        <label className="font-semibold">Sub Categoría</label>
-                        {!(!exist || (inputEdit == "subcategoria")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("subcategoria")}}>Editar Subcategoría</p>}
-                        {(!exist || (inputEdit == "subcategoria")) && <select id="subcategoria" name="subcategoria" value={selectSubCat} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
-                            <option value="pellet">Calefactores a pellet</option>
-                            <option value="leña">Calefactores a leña</option>
-                        </select>}
-                    </div>}
+                    <FormCategoria state={state} validate={validate} handleChange={handleChange} />
+                    <FormSubcategoria state={state} validate={validate} handleChange={handleChange} />
                 </div>
-                <div>
-                    <label className="font-semibold">¿Producto destacado?</label>
-                    {!(!exist || (inputEdit == "destacados")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("destacados")}}>Editar Destacado</p>}
-                    {(!exist || (inputEdit == "destacados")) && <select id="destacado" name="destacado" value={selectDest} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400">
-                        <option value="">No</option>
-                        <option value="true">Si</option>
-                    </select>}
-                </div>
-                <div>
-                    <label className="font-semibold">Otros</label>
-                    {(!exist || (inputEdit == "otros")) && <input type="text" name="otros" value={product.otros} onChange={handleChange} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400" placeholder=""></input>}
-                    {!(!exist || (inputEdit == "otros")) && <p className="hover:cursor-pointer hover:font-semibold" onClick={() => {setInputEdit("otros")}}>Otros</p>}
-                </div>
-                {!exist && <div>
-                    <label className="font-semibold">ID del producto</label>
-                    <input type="text" name="id" value={idProduct} onChange={handleChangeId} className="w-full h-8 bg-gray-50 border rounded px-2 outline-none focus:border-gray-400"></input>
-                </div>}
+                <FormDestacados state={state} handleChange={handleChange} />
+                <FormOtros state={state} handleChange={handleChange} />
+                <FormId state={state} validate={validate} handleChange={handleChange} />
                 <button type="submit" onClick={handleClick} className="bg-gray-100 border border-gray-300 p-2 rounded text-lg hover:bg-gray-200">Agregar producto</button>
             </form>
         </section>
